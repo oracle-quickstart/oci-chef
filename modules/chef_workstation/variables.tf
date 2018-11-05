@@ -1,5 +1,4 @@
 variable "compartment_ocid" {}
-variable "chef_server_name" {}
 variable "chef_workstation_name" {}
 variable "subnet_ocid" {}
 variable "source_ocid" {}
