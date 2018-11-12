@@ -5,16 +5,8 @@ variable "private_key_path" {}
 variable "region" {}
 variable "compartment_ocid" {}
 
-variable "chef_server_display_name" {
-  default = "chefserver"
-}
-
-#variable "subnet_ocid" {}
 variable "source_ocid" {}
-
 variable "ssh_authorized_keys" {}
-
-#variable "vcn_ocid" {}
 variable "ssh_private_key" {}
 
 variable "block_storage_sizes_in_gbs" {
@@ -22,9 +14,16 @@ variable "block_storage_sizes_in_gbs" {
   default = []
 }
 
-#Chef server configuration
-variable "chef_user_name" {}
+variable "vcn_display_name" {
+  default = "chef"
+}
 
+#Chef server configuration
+variable "chef_server_display_name" {
+  default = "chefserver"
+}
+
+variable "chef_user_name" {}
 variable "chef_user_fist_name" {}
 variable "chef_user_last_name" {}
 variable "chef_user_password" {}
@@ -38,16 +37,8 @@ variable "chef_workstation_display_name" {
 }
 
 #Chef node configation
-//variable "chef_node_display_name" {
-//  default = "chefnode"
-//}
-//
 variable "chef_node_count" {
   default = 3
-}
-
-variable "chef_nodes_subnet_ocid" {
-  type = "list"
 }
 
 variable "chef_recipes" {
@@ -64,7 +55,3 @@ variable "chef_node_name" {
 variable "shape" {
   default = "VM.Standard1.1"
 }
-
-#Bastion host
-#variable "bastion_host_subnet_ocid" {}
-

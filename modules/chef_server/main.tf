@@ -9,8 +9,8 @@ module "chef_server" {
   subnet_ocid                = "${var.subnet_ocid}"
   ssh_authorized_keys        = "${var.ssh_authorized_keys}"
   block_storage_sizes_in_gbs = "${var.block_storage_sizes_in_gbs}"
-  shape ="${var.shape}"
-  assign_public_ip = false
+  shape                      = "${var.shape}"
+  assign_public_ip           = false
 }
 
 data "oci_core_instance" chef_server {

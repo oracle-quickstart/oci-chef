@@ -1,23 +1,42 @@
-output "instance_id" {
-  description = "ocid of created chef nodes. "
+// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 
-  value = [
-    "${concat(module.chef_node_subnet1.instance_id,module.chef_node_subnet2.instance_id,module.chef_node_subnet3.instance_id)}",
-  ]
+output "instance_id" {
+  description = "ocid of created instances. "
+  value       = ["${oci_core_instance.this.*.id}"]
 }
 
 output "private_ip" {
-  description = "Private IPs of created chef nodes. "
-
-  value = [
-    "${concat(module.chef_node_subnet1.private_ip,module.chef_node_subnet2.private_ip,module.chef_node_subnet3.private_ip)}",
-  ]
+  description = "Private IPs of created instances. "
+  value       = ["${oci_core_instance.this.*.private_ip}"]
 }
 
 output "public_ip" {
-  description = "Public IPs of created chef nodes. "
+  description = "Public IPs of created instances. "
+  value       = ["${oci_core_instance.this.*.public_ip}"]
+}
 
-  value = [
-    "${concat(module.chef_node_subnet1.public_ip,module.chef_node_subnet2.public_ip,module.chef_node_subnet3.public_ip)}",
-  ]
+output "volume_attachment_iqn" {
+  description = "Unique IDs assigned to iSCSI devices. Used when attaching a volume to an instance. "
+  value       = ["${oci_core_volume_attachment.this.*.iqn}"]
+}
+
+output "volume_attachment_ipv4" {
+  description = "The volume's iSCSI IP addresses. "
+  value       = ["${oci_core_volume_attachment.this.*.ipv4}"]
+}
+
+output "volume_attachment_port" {
+  description = "The volume's iSCSI ports. "
+  value       = ["${oci_core_volume_attachment.this.*.port}"]
+}
+
+output "instance_username" {
+  description = "Usernames to login to Windows instance. "
+  value       = ["${data.oci_core_instance_credentials.this.*.username}"]
+}
+
+output "instance_password" {
+  description = "Passwords to login to Windows instance. "
+  sensitive   = true
+  value       = ["${data.oci_core_instance_credentials.this.*.password}"]
 }

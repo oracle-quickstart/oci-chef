@@ -3,7 +3,7 @@
 ############################################
 resource "oci_core_virtual_network" "chef" {
   compartment_id = "${var.compartment_ocid}"
-  display_name   = "chef"
+  display_name   = "${var.vcn_display_name}"
   cidr_block     = "10.0.0.0/16"
   dns_label      = "chef"
 }
@@ -151,19 +151,20 @@ resource "oci_core_subnet" "bastion" {
   security_list_ids   = ["${oci_core_security_list.sl.id}"]
   vcn_id              = "${oci_core_virtual_network.chef.id}"
   route_table_id      = "${oci_core_route_table.public.id}"
-  dns_label = "bastion"
+  dns_label           = "bastion"
 }
 
 ############################################
 # Create chef Subnets
 ############################################
 resource "oci_core_subnet" "chef" {
-  count               = "${length(data.template_file.ad_names.*.rendered)}"
-  availability_domain = "${data.template_file.ad_names.*.rendered[count.index]}"
-  cidr_block          = "${cidrsubnet("10.0.0.0/16", 8 , count.index)}"
-  security_list_ids   = ["${oci_core_security_list.sl.id}"]
-  compartment_id      = "${var.compartment_ocid}"
-  vcn_id              = "${oci_core_virtual_network.chef.id}"
-  route_table_id      = "${oci_core_route_table.private.id}"
-  dns_label ="ad${count.index + 1}"
+  count                      = "${length(data.template_file.ad_names.*.rendered)}"
+  availability_domain        = "${data.template_file.ad_names.*.rendered[count.index]}"
+  cidr_block                 = "${cidrsubnet("10.0.0.0/16", 8 , count.index)}"
+  security_list_ids          = ["${oci_core_security_list.sl.id}"]
+  compartment_id             = "${var.compartment_ocid}"
+  vcn_id                     = "${oci_core_virtual_network.chef.id}"
+  route_table_id             = "${oci_core_route_table.private.id}"
+  dns_label                  = "ad${count.index + 1}"
+  prohibit_public_ip_on_vnic = true
 }

@@ -1,16 +1,16 @@
 module "chef" {
-  source                     = "../../"
-  compartment_ocid           = "${var.compartment_ocid}"
-  chef_server_name           = "${var.chef_server_display_name}"
+  source                = "../../"
+  compartment_ocid      = "${var.compartment_ocid}"
+  chef_server_name      = "${var.chef_server_display_name}"
   chef_workstation_name = "${var.chef_workstation_display_name}"
-  source_ocid                = "${var.source_ocid}"
-  vcn_ocid                   = "${oci_core_virtual_network.chef.id}"
-  subnet_ocid                = "${oci_core_subnet.chef.0.id}"
-  ssh_authorized_keys        = "${var.ssh_authorized_keys}"
-  ssh_private_key            = "${var.ssh_private_key}"
-  shape                      = "${var.shape}"
-  bastion_public_ip          = "${element(module.bastion_host.public_ip, 0)}"
-  bastion_private_key        = "${var.ssh_private_key}"
+  source_ocid           = "${var.source_ocid}"
+  vcn_ocid              = "${oci_core_virtual_network.chef.id}"
+  subnet_ocid           = "${oci_core_subnet.chef.0.id}"
+  ssh_authorized_keys   = "${var.ssh_authorized_keys}"
+  ssh_private_key       = "${var.ssh_private_key}"
+  shape                 = "${var.shape}"
+  bastion_public_ip     = "${element(module.bastion_host.public_ip, 0)}"
+  bastion_private_key   = "${var.ssh_private_key}"
 }
 
 module "bastion_host" {
@@ -31,13 +31,15 @@ module "bastion_host" {
 module "chef_node" {
   source = "../../modules/chef_nodes"
 
+  instance_display_name      = "chefnode"
+  instance_count             = "${var.chef_node_count}"
   compartment_ocid           = "${var.compartment_ocid}"
   source_ocid                = "${var.source_ocid}"
   vcn_ocid                   = "${oci_core_virtual_network.chef.id}"
   subnet_ocid                = "${oci_core_subnet.chef.*.id}"
   ssh_authorized_keys        = "${var.ssh_authorized_keys}"
   block_storage_sizes_in_gbs = "${var.block_storage_sizes_in_gbs}"
-
+  shape                      = "${var.shape}"
 }
 
 data "local_file" "user_key" {
@@ -84,8 +86,9 @@ resource "null_resource" "chef_server_creat_user_and_org" {
     inline = [
       "sudo chef-server-ctl user-create ${var.chef_user_name} ${var.chef_user_fist_name} ${var.chef_user_last_name} ${var.chef_user_email} '${var.chef_user_password}' --filename /home/opc/${var.chef_user_name}.pem",
       "sudo chef-server-ctl org-create ${var.chef_org_short_name} '${var.chef_org_full_name}' --association_user ${var.chef_user_name} --filename /home/opc/${var.chef_org_short_name}-validator.pem",
-      //"sudo yum install nc -y",
     ]
+
+    //"sudo yum install nc -y",
 
     connection {
       host        = "${element(module.chef.chef_server_private_ip, 0)}"
@@ -131,10 +134,12 @@ resource "null_resource" "chef_workstation_config" {
     bastion_user        = "opc"
     bastion_private_key = "${file(var.ssh_private_key)}"
   }
+
   provisioner "file" {
     source      = "${var.ssh_private_key}"
     destination = "~/.ssh/id_rsa"
   }
+
   provisioner "remote-exec" {
     inline = [
       "if [ ! -d \".chef\" ]; then",
@@ -153,6 +158,7 @@ resource "null_resource" "chef_workstation_config" {
       "EOF",
     ]
   }
+
   provisioner "remote-exec" {
     inline = [
       "sudo yum install git -y",

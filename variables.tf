@@ -8,13 +8,15 @@ variable "vcn_ocid" {}
 variable "ssh_private_key" {}
 
 variable "block_storage_sizes_in_gbs" {
-  type = "list"
+  type    = "list"
   default = []
 }
+
 variable "shape" {
   default = "VM.Standard1.1"
 }
 
 # Bastion
 variable "bastion_public_ip" {}
+
 variable "bastion_private_key" {}
