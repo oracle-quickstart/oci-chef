@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
@@ -16,15 +15,11 @@ import (
 )
 
 func TestQuickStart(t *testing.T) {
-	t.Parallel()
-	uniqueId := random.UniqueId()
-	vcnDisplayDame := fmt.Sprintf("ChefQuickStart-%s", uniqueId)
+
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
 		TerraformDir: "../examples/quick_start",
-		Vars: map[string]interface{}{
-			"vcn_display_name": vcnDisplayDame,
-		},
+		Vars:         map[string]interface{}{},
 
 		NoColor: false,
 	}
@@ -162,7 +157,7 @@ func TestQuickStartChefNode(t *testing.T) {
 	}
 
 }
-func TestQuickStartHttp(t *testing.T) {
+func TestQuickStartHttpService(t *testing.T) {
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
@@ -282,6 +277,31 @@ func TestQuickStartChefNodeScaleDown(t *testing.T) {
 	}
 }
 
+func TestQuickStartWithShapeBM(t *testing.T) {
+	t.Parallel()
+	terraformOptions := &terraform.Options{
+		// The path to where our Terraform code is located
+		TerraformDir: "../examples/quick_start",
+		Vars: map[string]interface{}{
+			"shape": "BM.HighIO1.36",
+		},
+
+		NoColor: false,
+	}
+
+	// At the end of the test, run `terraform destroy` to clean up any resources that were created
+	defer terraform.Destroy(t, terraformOptions)
+
+	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+	terraform.InitAndApply(t, terraformOptions)
+
+	// Run `terraform output` to get the value of an output variable
+	chefServer := terraform.Output(t, terraformOptions, "chef_server_private_ip")
+	// Verify we're getting back the variable we expect
+	assert.NotEmpty(t, chefServer)
+
+}
+
 type TFVarsProperties map[string]string
 
 func ReadTFVarsFile(filename string) (TFVarsProperties, error) {
@@ -317,32 +337,4 @@ func ReadTFVarsFile(filename string) (TFVarsProperties, error) {
 	}
 
 	return config, nil
-}
-
-func TestQuickStartWithShapeBM(t *testing.T) {
-	t.Parallel()
-	uniqueId := random.UniqueId()
-	vcnDisplayDame := fmt.Sprintf("ChefQuickStartWithShapeBM-%s", uniqueId)
-	terraformOptions := &terraform.Options{
-		// The path to where our Terraform code is located
-		TerraformDir: "../examples/quick_start",
-		Vars: map[string]interface{}{
-			"shape":            "BM.HighIO1.36",
-			"vcn_display_name": vcnDisplayDame,
-		},
-
-		NoColor: false,
-	}
-
-	// At the end of the test, run `terraform destroy` to clean up any resources that were created
-	defer terraform.Destroy(t, terraformOptions)
-
-	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
-	terraform.InitAndApply(t, terraformOptions)
-
-	// Run `terraform output` to get the value of an output variable
-	chefServer := terraform.Output(t, terraformOptions, "chef_server_private_ip")
-	// Verify we're getting back the variable we expect
-	assert.NotEmpty(t, chefServer)
-
 }

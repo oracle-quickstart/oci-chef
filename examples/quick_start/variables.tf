@@ -5,7 +5,21 @@ variable "private_key_path" {}
 variable "region" {}
 variable "compartment_ocid" {}
 
-variable "source_ocid" {}
+variable "source_ocid" {
+  type = "map"
+
+  # --------------------------------------------------------------------------
+  # Oracle-provided image "Oracle-Linux-7.4-2018.02.21-1"
+  # See https://docs.us-phoenix-1.oraclecloud.com/images/
+  # --------------------------------------------------------------------------
+  default = {
+    us-phoenix-1   = "ocid1.image.oc1.phx.aaaaaaaaupbfz5f5hdvejulmalhyb6goieolullgkpumorbvxlwkaowglslq"
+    us-ashburn-1   = "ocid1.image.oc1.iad.aaaaaaaajlw3xfie2t5t52uegyhiq2npx7bqyu4uvi2zyu3w3mqayc2bxmaa"
+    eu-frankfurt-1 = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa7d3fsb6272srnftyi4dphdgfjf6gurxqhmv6ileds7ba3m2gltxq"
+    uk-london-1    = "ocid1.image.oc1.uk-london-1.aaaaaaaaa6h6gj6v4n56mqrbgnosskq63blyv2752g36zerymy63cfkojiiq"
+  }
+}
+
 variable "ssh_authorized_keys" {}
 variable "ssh_private_key" {}
 
@@ -19,22 +33,14 @@ variable "vcn_display_name" {
 }
 
 #Chef server configuration
-variable "chef_server_display_name" {
-  default = "chefserver"
-}
-
 variable "chef_user_name" {}
+
 variable "chef_user_fist_name" {}
 variable "chef_user_last_name" {}
 variable "chef_user_password" {}
 variable "chef_user_email" {}
 variable "chef_org_short_name" {}
 variable "chef_org_full_name" {}
-
-#Chef work station configation
-variable "chef_workstation_display_name" {
-  default = "chefworkstation"
-}
 
 #Chef node configation
 variable "chef_node_count" {
@@ -53,5 +59,18 @@ variable "chef_node_name" {
 }
 
 variable "shape" {
+  default = "VM.Standard1.1"
+}
+
+# Bastion
+variable "bastion_user" {
+  description = "The SSH user to connect to the bastion host."
+  default     = "opc"
+}
+
+variable "bastion_private_key" {}
+variable "bastion_authorized_keys" {}
+
+variable "bastion_shape" {
   default = "VM.Standard1.1"
 }

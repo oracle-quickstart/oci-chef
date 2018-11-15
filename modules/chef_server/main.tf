@@ -10,7 +10,6 @@ module "chef_server" {
   ssh_authorized_keys        = "${var.ssh_authorized_keys}"
   block_storage_sizes_in_gbs = "${var.block_storage_sizes_in_gbs}"
   shape                      = "${var.shape}"
-  assign_public_ip           = false
 }
 
 data "oci_core_instance" chef_server {
@@ -21,14 +20,14 @@ data "oci_core_subnet" chef_server_subnet {
   subnet_id = "${var.subnet_ocid}"
 }
 
-resource "null_resource" "install_rpm" {
+resource "null_resource" "install_chef_server_core" {
   triggers {
     private_ip = "${element(module.chef_server.private_ip, 0)}"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sudo rpm -Uvh https://packages.chef.io/files/stable/chef-server/12.18.14/el/7/chef-server-core-12.18.14-1.el7.x86_64.rpm",
+      "sudo rpm -Uvh ${var.chef-server-core_rpm_url}",
       "sudo chef-server-ctl reconfigure",
       "sudo firewall-cmd --permanent --zone public --add-service http && sudo firewall-cmd --permanent --zone public --add-service https && sudo  firewall-cmd --reload",
     ]
@@ -41,7 +40,7 @@ resource "null_resource" "install_rpm" {
       timeout     = "3m"
 
       bastion_host        = "${var.bastion_public_ip}"
-      bastion_user        = "opc"
+      bastion_user        = "${var.bastion_user}"
       bastion_private_key = "${file(var.bastion_private_key)}"
     }
   }

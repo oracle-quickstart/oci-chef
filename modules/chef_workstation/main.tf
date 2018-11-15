@@ -11,17 +11,16 @@ module "chef_workstation" {
   ssh_authorized_keys        = "${var.ssh_authorized_keys}"
   block_storage_sizes_in_gbs = "${var.block_storage_sizes_in_gbs}"
   shape                      = "${var.shape}"
-  assign_public_ip           = false
 }
 
-resource "null_resource" "install_rpm" {
+resource "null_resource" "install_chefdk" {
   triggers {
     private_ip = "${element(module.chef_workstation.private_ip, 0)}"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sudo rpm -Uvh https://packages.chef.io/files/stable/chefdk/3.3.23/el/7/chefdk-3.3.23-1.el7.x86_64.rpm",
+      "sudo rpm -Uvh ${var.chefdk_rpm_url}",
     ]
 
     connection {
@@ -32,7 +31,7 @@ resource "null_resource" "install_rpm" {
       timeout     = "3m"
 
       bastion_host        = "${var.bastion_public_ip}"
-      bastion_user        = "opc"
+      bastion_user        = "${var.bastion_user}"
       bastion_private_key = "${file(var.bastion_private_key)}"
     }
   }

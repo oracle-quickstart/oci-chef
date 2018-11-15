@@ -57,11 +57,3 @@ output "chef_node_private_ip" {
     "${module.chef_node.private_ip}",
   ]
 }
-
-output "chef_node_public_ip" {
-  description = "Public IPs of created chef nodes. "
-
-  value = [
-    "${module.chef_node.public_ip}",
-  ]
-}

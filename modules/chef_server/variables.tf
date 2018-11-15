@@ -18,4 +18,7 @@ variable "shape" {
 # Bastion
 variable "bastion_public_ip" {}
 
+variable "bastion_user" {}
 variable "bastion_private_key" {}
+
+variable "chef-server-core_rpm_url" {}
