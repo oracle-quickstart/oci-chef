@@ -165,6 +165,7 @@ resource "null_resource" "chef_node_run_recipes" {
 
     inline = [
       "knife node delete ${var.chef_node_name}_${count.index} -y",
+      "knife client delete ${var.chef_node_name}_${count.index} -y",
     ]
 
     connection {

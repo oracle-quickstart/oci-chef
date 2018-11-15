@@ -264,17 +264,19 @@ func TestQuickStartChefNodeScaleDown(t *testing.T) {
 		SshKeyPair:  keyPair,
 		SshUserName: sshUserName,
 	}
-	nodes := terraform.OutputList(t, terraformOptions, "chef_node_private_ip")
-	assert.Equal(t, terraformOptions.Vars["chef_node_count"], len(nodes))
-	for _, node := range nodes {
-		chefNode := ssh.Host{
-			Hostname:    node,
-			SshKeyPair:  keyPair,
-			SshUserName: sshUserName,
-		}
-		cmdReturn := ssh.CheckPrivateSshConnection(t, bastion, chefNode, "sudo systemctl is-active httpd.service")
-		assert.Equal(t, "active", strings.TrimSuffix(cmdReturn, "\n"))
+	workstation := ssh.Host{
+		Hostname:    terraform.Output(t, terraformOptions, "chef_workstation_private_ip"),
+		SshKeyPair:  keyPair,
+		SshUserName: sshUserName,
 	}
+	cmdReturn := ssh.CheckPrivateSshConnection(t, bastion, workstation, "knife node list -F json")
+	var nodes []string
+	err = json.NewDecoder(strings.NewReader(cmdReturn)).Decode(&nodes)
+	if err != nil {
+		t.Error("Error while remote exec output")
+	}
+	log.Println(nodes)
+	assert.Equal(t, terraformOptions.Vars["chef_node_count"], len(nodes), strings.Join(nodes, ","))
 }
 
 func TestQuickStartWithShapeBM(t *testing.T) {
