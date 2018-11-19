@@ -83,7 +83,11 @@ resource "null_resource" "get_chef_user_key" {
   ]
 
   provisioner "local-exec" {
-    command = "scp -v -q -o ConnectTimeout=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.ssh_private_key} -o ProxyCommand=\"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.bastion_private_key}  ${var.bastion_user}@${element(module.bastion_host.public_ip, 0)} nc ${element(module.chef.chef_server_private_ip, 0)} 22\" opc@${element(module.chef.chef_server_private_ip, 0)}:/home/opc/${var.chef_user_name}.pem ./${var.chef_user_name}.pem"
+    command = <<EOT
+    chmod 600 ${var.ssh_private_key}
+    chmod 600 ${var.bastion_private_key}
+    scp -v -q -o ConnectTimeout=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.ssh_private_key} -o ProxyCommand="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.bastion_private_key}  ${var.bastion_user}@${element(module.bastion_host.public_ip, 0)} nc ${element(module.chef.chef_server_private_ip, 0)} 22" opc@${element(module.chef.chef_server_private_ip, 0)}:/home/opc/${var.chef_user_name}.pem .
+    EOT
   }
 
   provisioner "local-exec" {

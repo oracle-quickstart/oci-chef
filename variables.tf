@@ -20,7 +20,7 @@ variable "block_storage_sizes_in_gbs" {
 }
 
 variable "shape" {
-  default = "VM.Standard1.1"
+  default = "VM.Standard2.1"
 }
 
 # Bastion

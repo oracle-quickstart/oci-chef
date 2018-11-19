@@ -59,7 +59,7 @@ variable "chef_node_name" {
 }
 
 variable "shape" {
-  default = "VM.Standard1.1"
+  default = "VM.Standard2.1"
 }
 
 # Bastion
@@ -72,5 +72,5 @@ variable "bastion_private_key" {}
 variable "bastion_authorized_keys" {}
 
 variable "bastion_shape" {
-  default = "VM.Standard1.1"
+  default = "VM.Standard2.1"
 }
