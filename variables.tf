@@ -14,11 +14,6 @@ variable "ssh_authorized_keys" {}
 variable "vcn_ocid" {}
 variable "ssh_private_key" {}
 
-variable "block_storage_sizes_in_gbs" {
-  type    = "list"
-  default = []
-}
-
 variable "shape" {
   default = "VM.Standard2.1"
 }
