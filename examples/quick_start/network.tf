@@ -147,7 +147,7 @@ data "template_file" "ad_names" {
 resource "oci_core_subnet" "bastion" {
   availability_domain = "${data.template_file.ad_names.*.rendered[length(data.template_file.ad_names.*.rendered) - 1]}"
   compartment_id      = "${var.compartment_ocid}"
-  cidr_block          = "10.0.3.0/24"
+  cidr_block          = "${cidrsubnet(oci_core_virtual_network.chef.cidr_block, 14 , 0)}"
   security_list_ids   = ["${oci_core_security_list.sl.id}"]
   vcn_id              = "${oci_core_virtual_network.chef.id}"
   route_table_id      = "${oci_core_route_table.public.id}"
@@ -160,7 +160,7 @@ resource "oci_core_subnet" "bastion" {
 resource "oci_core_subnet" "chef" {
   count                      = "${length(data.template_file.ad_names.*.rendered)}"
   availability_domain        = "${data.template_file.ad_names.*.rendered[count.index]}"
-  cidr_block                 = "${cidrsubnet("10.0.0.0/16", 8 , count.index)}"
+  cidr_block                 = "${cidrsubnet(oci_core_virtual_network.chef.cidr_block, 8 , count.index + 1)}"
   security_list_ids          = ["${oci_core_security_list.sl.id}"]
   compartment_id             = "${var.compartment_ocid}"
   vcn_id                     = "${oci_core_virtual_network.chef.id}"
