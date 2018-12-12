@@ -43,7 +43,7 @@ module "bastion_host" {
   vcn_ocid              = "${oci_core_virtual_network.chef.id}"
   subnet_ocid           = "${oci_core_subnet.bastion.id}"
   ssh_authorized_keys   = "${var.bastion_authorized_keys}"
-  shape                 = "${var.shape}"
+  shape                 = "${var.bastion_shape}"
 }
 
 resource "null_resource" "bastion_install_nc" {
