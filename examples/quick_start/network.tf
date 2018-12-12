@@ -32,7 +32,7 @@ resource "oci_core_route_table" "public" {
   vcn_id         = "${oci_core_virtual_network.chef.id}"
   display_name   = "public"
 
-  route_rules {
+  route_rules = {
     destination       = "0.0.0.0/0"
     network_entity_id = "${oci_core_internet_gateway.ig.id}"
   }
@@ -43,7 +43,7 @@ resource "oci_core_route_table" "private" {
   vcn_id         = "${oci_core_virtual_network.chef.id}"
   display_name   = "private"
 
-  route_rules {
+  route_rules = {
     destination       = "0.0.0.0/0"
     destination_type  = "CIDR_BLOCK"
     network_entity_id = "${oci_core_nat_gateway.ng.id}"
@@ -63,7 +63,7 @@ resource "oci_core_security_list" "sl" {
   }]
 
   ingress_security_rules = [{
-    tcp_options {
+    tcp_options = {
       "max" = 22
       "min" = 22
     }
@@ -72,7 +72,7 @@ resource "oci_core_security_list" "sl" {
     source   = "0.0.0.0/0"
   },
     {
-      tcp_options {
+      tcp_options = {
         "max" = "443"
         "min" = "443"
       }
@@ -81,49 +81,13 @@ resource "oci_core_security_list" "sl" {
       source   = "0.0.0.0/0"
     },
     {
-      tcp_options {
+      tcp_options = {
         "max" = "80"
         "min" = "80"
       }
 
       protocol = "6"
       source   = "0.0.0.0/0"
-    },
-    {
-      tcp_options {
-        "max" = "2380"
-        "min" = "2379"
-      }
-
-      protocol = "6"
-      source   = "10.0.0.0/16"
-    },
-    {
-      tcp_options {
-        "max" = "5432"
-        "min" = "5432"
-      }
-
-      protocol = "6"
-      source   = "10.0.0.0/16"
-    },
-    {
-      tcp_options {
-        "max" = "7331"
-        "min" = "7331"
-      }
-
-      protocol = "6"
-      source   = "10.0.0.0/16"
-    },
-    {
-      tcp_options {
-        "max" = "9300"
-        "min" = "9200"
-      }
-
-      protocol = "6"
-      source   = "10.0.0.0/16"
     },
   ]
 }
