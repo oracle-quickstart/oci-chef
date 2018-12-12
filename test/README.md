@@ -15,5 +15,5 @@ BARE_METAL_SHAPE=BM.Standard1.36 go test -timeout 30m -run QuickStart
 cd ../Example/Quick_Start
 terraform init
 terraform apply --auto-approve
-SKIP_terraform_init=true SKIP_terraform_destroy=true go test -timeout 30m -run QuickStart
+GOCACHE=off SKIP_terraform_init=true SKIP_terraform_destroy=true go test -timeout 30m -run QuickStart
 ```
