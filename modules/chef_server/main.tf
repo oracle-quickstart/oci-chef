@@ -35,7 +35,7 @@ resource "null_resource" "install_chef_server_core" {
     connection {
       host        = "${element(module.chef_server.private_ip, 0)}"
       type        = "ssh"
-      user        = "opc"
+      user        = "${var.ssh_user}"
       private_key = "${file(var.ssh_private_key)}"
       timeout     = "3m"
 

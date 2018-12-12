@@ -12,6 +12,9 @@ variable "subnet_ocid" {}
 variable "source_ocid" {}
 variable "ssh_authorized_keys" {}
 variable "vcn_ocid" {}
+variable "ssh_user" {
+  default = "opc"
+}
 variable "ssh_private_key" {}
 
 variable "shape" {

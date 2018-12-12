@@ -5,6 +5,7 @@ module "chef_server" {
   source_ocid              = "${var.source_ocid}"
   vcn_ocid                 = "${var.vcn_ocid}"
   subnet_ocid              = "${var.subnet_ocid}"
+  ssh_user                 = "${var.ssh_user}"
   ssh_authorized_keys      = "${var.ssh_authorized_keys}"
   shape                    = "${var.shape}"
   ssh_private_key          = "${var.ssh_private_key}"
@@ -21,6 +22,7 @@ module "chef_workstation" {
   source_ocid           = "${var.source_ocid}"
   vcn_ocid              = "${var.vcn_ocid}"
   subnet_ocid           = "${var.subnet_ocid}"
+  ssh_user              = "${var.ssh_user}"
   ssh_authorized_keys   = "${var.ssh_authorized_keys}"
   shape                 = "${var.shape}"
   ssh_private_key       = "${var.ssh_private_key}"
@@ -71,7 +73,7 @@ resource "null_resource" "chef_workstation_config" {
   connection {
     host        = "${element(module.chef_workstation.private_ip, 0)}"
     type        = "ssh"
-    user        = "opc"
+    user        = "${var.ssh_user}"
     private_key = "${file(var.ssh_private_key)}"
     timeout     = "3m"
 

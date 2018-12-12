@@ -26,7 +26,7 @@ resource "null_resource" "install_chefdk" {
     connection {
       host        = "${element(module.chef_workstation.private_ip, 0)}"
       type        = "ssh"
-      user        = "opc"
+      user        = "${var.ssh_user}"
       private_key = "${file(var.ssh_private_key)}"
       timeout     = "3m"
 
