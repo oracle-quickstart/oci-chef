@@ -20,8 +20,13 @@ variable "source_ocid" {
   }
 }
 
-variable "ssh_authorized_keys" {}
-variable "ssh_private_key" {}
+variable "ssh_authorized_keys" {
+  description = "Public SSH keys path to be included in the ~/.ssh/authorized_keys file for the default user on the instance."
+}
+
+variable "ssh_private_key" {
+  description = "The private SSH key path to access instance. "
+}
 
 variable "vcn_display_name" {
   default = "chef"
@@ -63,8 +68,13 @@ variable "bastion_user" {
   default     = "opc"
 }
 
-variable "bastion_private_key" {}
-variable "bastion_authorized_keys" {}
+variable "bastion_private_key" {
+  description = "The private SSH key path to access instance."
+}
+
+variable "bastion_authorized_keys" {
+  description = "Public SSH keys path to be included in the ~/.ssh/authorized_keys file for the default user on the instance."
+}
 
 variable "bastion_shape" {
   default = "VM.Standard2.1"

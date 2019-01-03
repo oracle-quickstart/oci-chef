@@ -10,14 +10,20 @@ variable "chef_workstation_name" {
 
 variable "subnet_ocid" {}
 variable "source_ocid" {}
-variable "ssh_authorized_keys" {}
+
+variable "ssh_authorized_keys" {
+  description = "Public SSH keys path to be included in the ~/.ssh/authorized_keys file for the default user on the instance."
+}
+
 variable "vcn_ocid" {}
 
 variable "ssh_user" {
   default = "opc"
 }
 
-variable "ssh_private_key" {}
+variable "ssh_private_key" {
+  description = "The private SSH key path to access instance."
+}
 
 variable "shape" {
   default = "VM.Standard2.1"
@@ -27,7 +33,10 @@ variable "shape" {
 variable "bastion_public_ip" {}
 
 variable "bastion_user" {}
-variable "bastion_private_key" {}
+
+variable "bastion_private_key" {
+  description = "The private SSH key path to access instance."
+}
 
 # Chef user & org
 variable "chef_user_name" {}
