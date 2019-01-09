@@ -25,11 +25,17 @@ func SetupTeardown(t *testing.T, terraformOptions *terraform.Options) {
 		terraform.Apply(t, terraformOptions)
 	})
 }
-func TestQuickStart(t *testing.T) {
-
+func GetTerraformOptions(TerraformDir string, Vars map[string]interface{}) *terraform.Options {
+	var inputs Inputs
+	err := helpers.GetJsonConfig(*helpers.JsonConfigFile(), &inputs)
+	if err != nil {
+		log.Println(err)
+	}
+	var jsonVars map[string]interface{}
+	jsonVars = helpers.GetJsonVars(inputs)
 	terraformOptions := &terraform.Options{
-		TerraformDir:             "../examples/quick_start",
-		Vars:                     map[string]interface{}{},
+		TerraformDir:             TerraformDir,
+		Vars:                     helpers.MergeVars(jsonVars, Vars),
 		EnvVars:                  nil,
 		BackendConfig:            nil,
 		RetryableTerraformErrors: nil,
@@ -39,6 +45,10 @@ func TestQuickStart(t *testing.T) {
 		NoColor:                  false,
 		SshAgent:                 nil,
 	}
+	return terraformOptions
+}
+func TestQuickStart(t *testing.T) {
+	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
 	test_structure.RunTestStage(t, "setup_teardown", func() {
 		SetupTeardown(t, terraformOptions)
 	})
@@ -51,18 +61,7 @@ func TestQuickStart(t *testing.T) {
 
 }
 func TestQuickStartChefServer(t *testing.T) {
-	terraformOptions := &terraform.Options{
-		TerraformDir:             "../examples/quick_start",
-		Vars:                     map[string]interface{}{},
-		EnvVars:                  nil,
-		BackendConfig:            nil,
-		RetryableTerraformErrors: nil,
-		MaxRetries:               0,
-		TimeBetweenRetries:       0,
-		Upgrade:                  false,
-		NoColor:                  false,
-		SshAgent:                 nil,
-	}
+	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
 	test_structure.RunTestStage(t, "setup_teardown", func() {
 		SetupTeardown(t, terraformOptions)
 	})
@@ -90,19 +89,7 @@ func TestQuickStartChefServer(t *testing.T) {
 
 }
 func TestQuickStartChefWorkstation(t *testing.T) {
-
-	terraformOptions := &terraform.Options{
-		TerraformDir:             "../examples/quick_start",
-		Vars:                     map[string]interface{}{},
-		EnvVars:                  nil,
-		BackendConfig:            nil,
-		RetryableTerraformErrors: nil,
-		MaxRetries:               0,
-		TimeBetweenRetries:       0,
-		Upgrade:                  false,
-		NoColor:                  false,
-		SshAgent:                 nil,
-	}
+	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
 	test_structure.RunTestStage(t, "setup_teardown", func() {
 		SetupTeardown(t, terraformOptions)
 	})
@@ -134,21 +121,7 @@ func TestQuickStartChefWorkstation(t *testing.T) {
 
 }
 func TestQuickStartChefNode(t *testing.T) {
-
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../examples/quick_start",
-		Vars: map[string]interface{}{
-			"chef_node_count": 3,
-		},
-		EnvVars:                  nil,
-		BackendConfig:            nil,
-		RetryableTerraformErrors: nil,
-		MaxRetries:               0,
-		TimeBetweenRetries:       0,
-		Upgrade:                  false,
-		NoColor:                  false,
-		SshAgent:                 nil,
-	}
+	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 3})
 	test_structure.RunTestStage(t, "setup_teardown", func() {
 		SetupTeardown(t, terraformOptions)
 	})
@@ -178,19 +151,7 @@ func TestQuickStartChefNode(t *testing.T) {
 
 }
 func TestQuickStartHttpService(t *testing.T) {
-
-	terraformOptions := &terraform.Options{
-		TerraformDir:             "../examples/quick_start",
-		Vars:                     map[string]interface{}{},
-		EnvVars:                  nil,
-		BackendConfig:            nil,
-		RetryableTerraformErrors: nil,
-		MaxRetries:               0,
-		TimeBetweenRetries:       0,
-		Upgrade:                  false,
-		NoColor:                  false,
-		SshAgent:                 nil,
-	}
+	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
 	test_structure.RunTestStage(t, "setup_teardown", func() {
 		SetupTeardown(t, terraformOptions)
 	})
@@ -214,21 +175,7 @@ func TestQuickStartHttpService(t *testing.T) {
 
 }
 func TestQuickStartChefNodeScaleUp(t *testing.T) {
-
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../examples/quick_start",
-		Vars: map[string]interface{}{
-			"chef_node_count": 4,
-		},
-		EnvVars:                  nil,
-		BackendConfig:            nil,
-		RetryableTerraformErrors: nil,
-		MaxRetries:               0,
-		TimeBetweenRetries:       0,
-		Upgrade:                  false,
-		NoColor:                  false,
-		SshAgent:                 nil,
-	}
+	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 4})
 	test_structure.RunTestStage(t, "setup_teardown", func() {
 		SetupTeardown(t, terraformOptions)
 	})
@@ -257,21 +204,7 @@ func TestQuickStartChefNodeScaleUp(t *testing.T) {
 	})
 }
 func TestQuickStartChefNodeScaleDown(t *testing.T) {
-
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../examples/quick_start",
-		Vars: map[string]interface{}{
-			"chef_node_count": 1,
-		},
-		EnvVars:                  nil,
-		BackendConfig:            nil,
-		RetryableTerraformErrors: nil,
-		MaxRetries:               0,
-		TimeBetweenRetries:       0,
-		Upgrade:                  false,
-		NoColor:                  false,
-		SshAgent:                 nil,
-	}
+	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 1})
 	test_structure.RunTestStage(t, "setup_teardown", func() {
 		SetupTeardown(t, terraformOptions)
 	})
@@ -302,22 +235,7 @@ func TestQuickStartChefNodeScaleDown(t *testing.T) {
 	})
 }
 func TestQuickStartWithShapeBM(t *testing.T) {
-	t.Parallel()
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../examples/quick_start",
-		Vars: map[string]interface{}{
-			"shape": *helpers.BareMetalShape(),
-		},
-		EnvVars:                  nil,
-		BackendConfig:            nil,
-		RetryableTerraformErrors: nil,
-		MaxRetries:               0,
-		TimeBetweenRetries:       0,
-		Upgrade:                  false,
-		NoColor:                  false,
-		SshAgent:                 nil,
-	}
-
+	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"shape": *helpers.BareMetalShape()})
 	test_structure.RunTestStage(t, "setup_teardown", func() {
 		SetupTeardown(t, terraformOptions)
 	})
