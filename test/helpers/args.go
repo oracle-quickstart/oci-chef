@@ -7,6 +7,7 @@ import (
 
 var (
 	bareMetalShape string
+	jsonConfigFile string
 )
 
 func ParseEnvironmentVariables() {
@@ -14,9 +15,15 @@ func ParseEnvironmentVariables() {
 	if len(bareMetalShape) == 0 {
 		bareMetalShape = "BM.HighIO1.36"
 	}
-
+	jsonConfigFile = os.Getenv("JSON_CONFIG_FILE")
+	if len(jsonConfigFile) == 0 {
+		jsonConfigFile = "inputs_config.json"
+	}
 }
 
 func BareMetalShape() *string {
 	return common.String(bareMetalShape)
+}
+func JsonConfigFile() *string {
+	return common.String(jsonConfigFile)
 }
