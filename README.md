@@ -15,4 +15,4 @@ Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 
 Licensed under the Universal Permissive License 1.0 or Apache License 2.0.
 
-See [LICENSE](/LICENSE.txt) for more details.
+See [LICENSE](LICENSE.txt) for more details.
