@@ -20,27 +20,38 @@ variable "source_ocid" {
   }
 }
 
-variable "ssh_authorized_keys" {
-  description = "Public SSH keys path to be included in the ~/.ssh/authorized_keys file for the default user on the instance."
-}
-
-variable "ssh_private_key" {
-  description = "The private SSH key path to access instance. "
-}
-
 variable "vcn_display_name" {
   default = "chef"
 }
 
 #Chef server configuration
-variable "chef_user_name" {}
+variable "chef_user_name" {
+  default = "chefadmin"
+}
 
-variable "chef_user_fist_name" {}
-variable "chef_user_last_name" {}
-variable "chef_user_password" {}
-variable "chef_user_email" {}
-variable "chef_org_short_name" {}
-variable "chef_org_full_name" {}
+variable "chef_user_fist_name" {
+  default = "chef"
+}
+
+variable "chef_user_last_name" {
+  default = "admin"
+}
+
+variable "chef_user_password" {
+  default = "Welcome1#"
+}
+
+variable "chef_user_email" {
+  default = "nobody@noreply.com"
+}
+
+variable "chef_org_short_name" {
+  default = "demo"
+}
+
+variable "chef_org_full_name" {
+  default = "Demo Inc."
+}
 
 #Chef node configation
 variable "chef_node_count" {
@@ -66,14 +77,6 @@ variable "shape" {
 variable "bastion_user" {
   description = "The SSH user to connect to the bastion host."
   default     = "opc"
-}
-
-variable "bastion_private_key" {
-  description = "The private SSH key path to access instance."
-}
-
-variable "bastion_authorized_keys" {
-  description = "Public SSH keys path to be included in the ~/.ssh/authorized_keys file for the default user on the instance."
 }
 
 variable "bastion_shape" {

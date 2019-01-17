@@ -51,12 +51,12 @@ resource "null_resource" "chef_server_create_user_and_org" {
       host        = "${element(module.chef_server.private_ip, 0)}"
       type        = "ssh"
       user        = "opc"
-      private_key = "${file(var.ssh_private_key)}"
+      private_key = "${var.ssh_private_key}"
       timeout     = "3m"
 
       bastion_host        = "${var.bastion_public_ip}"
       bastion_user        = "${var.bastion_user}"
-      bastion_private_key = "${file(var.bastion_private_key)}"
+      bastion_private_key = "${var.bastion_private_key}"
     }
   }
 }
@@ -74,16 +74,16 @@ resource "null_resource" "chef_workstation_config" {
     host        = "${element(module.chef_workstation.private_ip, 0)}"
     type        = "ssh"
     user        = "${var.ssh_user}"
-    private_key = "${file(var.ssh_private_key)}"
+    private_key = "${var.ssh_private_key}"
     timeout     = "3m"
 
     bastion_host        = "${var.bastion_public_ip}"
     bastion_user        = "${var.bastion_user}"
-    bastion_private_key = "${file(var.bastion_private_key)}"
+    bastion_private_key = "${var.bastion_private_key}"
   }
 
   provisioner "file" {
-    source      = "${var.ssh_private_key}"
+    content     = "${var.ssh_private_key}"
     destination = "~/.ssh/id_rsa"
   }
 

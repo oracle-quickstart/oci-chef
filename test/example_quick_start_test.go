@@ -67,7 +67,7 @@ func TestQuickStartChefServer(t *testing.T) {
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
-		keyPair, err := helpers.GetKeyPairFromOptions(terraformOptions, t)
+		keyPair, err := helpers.GetKeyPairFromFiles(terraform.Output(t, terraformOptions, "ssh_authorized_keys"), terraform.Output(t, terraformOptions, "ssh_private_key"))
 		if err != nil {
 			assert.NotNil(t, keyPair)
 		}
@@ -95,7 +95,7 @@ func TestQuickStartChefWorkstation(t *testing.T) {
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
-		keyPair, err := helpers.GetKeyPairFromOptions(terraformOptions, t)
+		keyPair, err := helpers.GetKeyPairFromFiles(terraform.Output(t, terraformOptions, "ssh_authorized_keys"), terraform.Output(t, terraformOptions, "ssh_private_key"))
 		if err != nil {
 			assert.NotNil(t, keyPair)
 		}
@@ -127,7 +127,7 @@ func TestQuickStartChefNode(t *testing.T) {
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
-		keyPair, err := helpers.GetKeyPairFromOptions(terraformOptions, t)
+		keyPair, err := helpers.GetKeyPairFromFiles(terraform.Output(t, terraformOptions, "ssh_authorized_keys"), terraform.Output(t, terraformOptions, "ssh_private_key"))
 		if err != nil {
 			assert.NotNil(t, keyPair)
 		}
@@ -157,7 +157,7 @@ func TestQuickStartHttpService(t *testing.T) {
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
-		keyPair, err := helpers.GetKeyPairFromOptions(terraformOptions, t)
+		keyPair, err := helpers.GetKeyPairFromFiles(terraform.Output(t, terraformOptions, "ssh_authorized_keys"), terraform.Output(t, terraformOptions, "ssh_private_key"))
 		if err != nil {
 			assert.NotNil(t, keyPair)
 		}
@@ -181,7 +181,7 @@ func TestQuickStartChefNodeScaleUp(t *testing.T) {
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
-		keyPair, err := helpers.GetKeyPairFromOptions(terraformOptions, t)
+		keyPair, err := helpers.GetKeyPairFromFiles(terraform.Output(t, terraformOptions, "ssh_authorized_keys"), terraform.Output(t, terraformOptions, "ssh_private_key"))
 		if err != nil {
 			assert.NotNil(t, keyPair)
 		}
@@ -210,7 +210,7 @@ func TestQuickStartChefNodeScaleDown(t *testing.T) {
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
-		keyPair, err := helpers.GetKeyPairFromOptions(terraformOptions, t)
+		keyPair, err := helpers.GetKeyPairFromFiles(terraform.Output(t, terraformOptions, "ssh_authorized_keys"), terraform.Output(t, terraformOptions, "ssh_private_key"))
 		if err != nil {
 			assert.NotNil(t, keyPair)
 		}
