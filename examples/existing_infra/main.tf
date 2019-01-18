@@ -4,12 +4,12 @@ module "chef" {
   source_ocid         = "${var.source_ocid[var.region]}"
   vcn_ocid            = "${var.vcn_ocid}"
   subnet_ocid         = "${var.subnet_ocid}"
-  ssh_authorized_keys = "${var.ssh_authorized_keys}"
-  ssh_private_key     = "${var.ssh_private_key}"
+  ssh_authorized_keys = "${file(var.ssh_authorized_keys)}"
+  ssh_private_key     = "${file(var.ssh_private_key)}"
   shape               = "${var.shape}"
   bastion_public_ip   = "${var.bastion_public_ip}"
   bastion_user        = "${var.bastion_user}"
-  bastion_private_key = "${var.bastion_private_key}"
+  bastion_private_key = "${file(var.bastion_private_key)}"
   chef_user_name      = "${var.chef_user_name}"
   chef_user_fist_name = "${var.chef_user_fist_name}"
   chef_user_last_name = "${var.chef_user_last_name}"
@@ -20,7 +20,7 @@ module "chef" {
 }
 
 module "chef_node" {
-  source = "../../modules/chef_nodes"
+  source = "../../modules/nodes"
 
   instance_display_name = "chefnode"
   instance_count        = "${var.chef_node_count}"
@@ -28,7 +28,7 @@ module "chef_node" {
   source_ocid           = "${var.source_ocid[var.region]}"
   vcn_ocid              = "${var.vcn_ocid}"
   subnet_ocid           = "${var.chef_node_subnets_ocid}"
-  ssh_authorized_keys   = "${var.ssh_authorized_keys}"
+  ssh_authorized_keys   = "${file(var.ssh_authorized_keys)}"
   shape                 = "${var.shape}"
 }
 

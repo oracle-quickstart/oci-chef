@@ -57,3 +57,19 @@ output "chef_node_private_ip" {
     "${module.chef_node.private_ip}",
   ]
 }
+
+output "ssh_authorized_keys" {
+  value = "${path.module}/${local_file.ssh_public_key.filename}"
+}
+
+output "ssh_private_key" {
+  value = "${path.module}/${local_file.ssh_private_key.filename}"
+}
+
+output "bastion_private_key" {
+  value = "${path.module}/${local_file.ssh_private_key.filename}"
+}
+
+output "bastion_authorized_keys" {
+  value = "${path.module}/${local_file.ssh_public_key.filename}"
+}

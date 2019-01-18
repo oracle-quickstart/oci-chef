@@ -12,7 +12,7 @@ variable "subnet_ocid" {}
 variable "source_ocid" {}
 
 variable "ssh_authorized_keys" {
-  description = "Public SSH keys path to be included in the ~/.ssh/authorized_keys file for the default user on the instance."
+  description = "Public SSH keys content in the ~/.ssh/authorized_keys file for the default user on the instance."
 }
 
 variable "vcn_ocid" {}
@@ -22,7 +22,7 @@ variable "ssh_user" {
 }
 
 variable "ssh_private_key" {
-  description = "The private SSH key path to access instance."
+  description = "The private SSH key content to access instance."
 }
 
 variable "shape" {
@@ -35,7 +35,7 @@ variable "bastion_public_ip" {}
 variable "bastion_user" {}
 
 variable "bastion_private_key" {
-  description = "The private SSH key path to access instance."
+  description = "The private SSH key content to access instance."
 }
 
 # Chef user & org
