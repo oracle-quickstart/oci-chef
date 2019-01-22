@@ -69,13 +69,11 @@ resource "null_resource" "bastion_install_nc" {
   depends_on = ["module.bastion_host"]
 
   connection {
-    host = "${element(module.bastion_host.public_ip, 0)}"
-    type = "ssh"
-    user = "${var.bastion_user}"
-
-    //private_key = "${file(var.bastion_private_key)}"
+    host        = "${element(module.bastion_host.public_ip, 0)}"
+    type        = "ssh"
+    user        = "${var.bastion_user}"
     private_key = "${tls_private_key.ssh_key.private_key_pem}"
-    timeout     = "3m"
+    timeout     = "5m"
   }
 
   provisioner "remote-exec" {
@@ -123,7 +121,7 @@ resource "null_resource" "upload_cookbooks" {
     type        = "ssh"
     user        = "opc"
     private_key = "${tls_private_key.ssh_key.private_key_pem}"
-    timeout     = "3m"
+    timeout     = "5m"
 
     bastion_host        = "${element(module.bastion_host.public_ip, 0)}"
     bastion_user        = "${var.bastion_user}"
@@ -171,7 +169,7 @@ resource "null_resource" "chef_node_run_recipes" {
       type        = "ssh"
       user        = "opc"
       private_key = "${tls_private_key.ssh_key.private_key_pem}"
-      timeout     = "3m"
+      timeout     = "5m"
 
       bastion_host        = "${element(module.bastion_host.public_ip, 0)}"
       bastion_user        = "${var.bastion_user}"
@@ -193,7 +191,7 @@ resource "null_resource" "chef_node_run_recipes" {
       type        = "ssh"
       user        = "opc"
       private_key = "${tls_private_key.ssh_key.private_key_pem}"
-      timeout     = "3m"
+      timeout     = "5m"
 
       bastion_host        = "${element(module.bastion_host.public_ip, 0)}"
       bastion_user        = "${var.bastion_user}"

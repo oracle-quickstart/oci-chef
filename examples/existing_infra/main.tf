@@ -70,7 +70,7 @@ resource "null_resource" "upload_cookbooks" {
     type        = "ssh"
     user        = "opc"
     private_key = "${file(var.ssh_private_key)}"
-    timeout     = "3m"
+    timeout     = "5m"
 
     bastion_host        = "${var.bastion_public_ip}"
     bastion_user        = "${var.bastion_user}"
@@ -118,7 +118,7 @@ resource "null_resource" "chef_node_run_recipes" {
       type        = "ssh"
       user        = "opc"
       private_key = "${file(var.ssh_private_key)}"
-      timeout     = "3m"
+      timeout     = "5m"
 
       bastion_host        = "${var.bastion_public_ip}"
       bastion_user        = "${var.bastion_user}"
@@ -139,7 +139,7 @@ resource "null_resource" "chef_node_run_recipes" {
       type        = "ssh"
       user        = "opc"
       private_key = "${file(var.ssh_private_key)}"
-      timeout     = "3m"
+      timeout     = "5m"
 
       bastion_host        = "${var.bastion_public_ip}"
       bastion_user        = "${var.bastion_user}"

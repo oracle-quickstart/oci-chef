@@ -52,7 +52,7 @@ resource "null_resource" "chef_server_create_user_and_org" {
       type        = "ssh"
       user        = "opc"
       private_key = "${var.ssh_private_key}"
-      timeout     = "3m"
+      timeout     = "5m"
 
       bastion_host        = "${var.bastion_public_ip}"
       bastion_user        = "${var.bastion_user}"
@@ -75,7 +75,7 @@ resource "null_resource" "chef_workstation_config" {
     type        = "ssh"
     user        = "${var.ssh_user}"
     private_key = "${var.ssh_private_key}"
-    timeout     = "3m"
+    timeout     = "5m"
 
     bastion_host        = "${var.bastion_public_ip}"
     bastion_user        = "${var.bastion_user}"
