@@ -13,16 +13,18 @@ import (
 	"testing"
 )
 
-func SetupTeardown(t *testing.T, terraformOptions *terraform.Options) {
-	// At the end of the test, run `terraform destroy` to clean up any resources that were created
-	defer test_structure.RunTestStage(t, "terraform_destroy", func() {
-		terraform.Destroy(t, terraformOptions)
-	})
+func Setup(t *testing.T, terraformOptions *terraform.Options) {
 	test_structure.RunTestStage(t, "terraform_init", func() {
 		terraform.Init(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "terraform_apply", func() {
 		terraform.Apply(t, terraformOptions)
+	})
+}
+func Teardown(t *testing.T, terraformOptions *terraform.Options) {
+	// At the end of the test, run `terraform destroy` to clean up any resources that were created
+	test_structure.RunTestStage(t, "terraform_destroy", func() {
+		terraform.Destroy(t, terraformOptions)
 	})
 }
 func GetTerraformOptions(TerraformDir string, Vars map[string]interface{}) *terraform.Options {
@@ -49,8 +51,11 @@ func GetTerraformOptions(TerraformDir string, Vars map[string]interface{}) *terr
 }
 func TestQuickStart(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
-	test_structure.RunTestStage(t, "setup_teardown", func() {
-		SetupTeardown(t, terraformOptions)
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		Teardown(t, terraformOptions)
+	})
+	test_structure.RunTestStage(t, "setup", func() {
+		Setup(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		// Run `terraform output` to get the value of an output variable
@@ -62,8 +67,11 @@ func TestQuickStart(t *testing.T) {
 }
 func TestQuickStartChefServer(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
-	test_structure.RunTestStage(t, "setup_teardown", func() {
-		SetupTeardown(t, terraformOptions)
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		Teardown(t, terraformOptions)
+	})
+	test_structure.RunTestStage(t, "setup", func() {
+		Setup(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
@@ -90,8 +98,11 @@ func TestQuickStartChefServer(t *testing.T) {
 }
 func TestQuickStartChefWorkstation(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
-	test_structure.RunTestStage(t, "setup_teardown", func() {
-		SetupTeardown(t, terraformOptions)
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		Teardown(t, terraformOptions)
+	})
+	test_structure.RunTestStage(t, "setup", func() {
+		Setup(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
@@ -122,8 +133,11 @@ func TestQuickStartChefWorkstation(t *testing.T) {
 }
 func TestQuickStartChefNode(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 3})
-	test_structure.RunTestStage(t, "setup_teardown", func() {
-		SetupTeardown(t, terraformOptions)
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		Teardown(t, terraformOptions)
+	})
+	test_structure.RunTestStage(t, "setup", func() {
+		Setup(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
@@ -152,8 +166,11 @@ func TestQuickStartChefNode(t *testing.T) {
 }
 func TestQuickStartHttpService(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
-	test_structure.RunTestStage(t, "setup_teardown", func() {
-		SetupTeardown(t, terraformOptions)
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		Teardown(t, terraformOptions)
+	})
+	test_structure.RunTestStage(t, "setup", func() {
+		Setup(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
@@ -176,8 +193,11 @@ func TestQuickStartHttpService(t *testing.T) {
 }
 func TestQuickStartChefNodeScaleUp(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 4})
-	test_structure.RunTestStage(t, "setup_teardown", func() {
-		SetupTeardown(t, terraformOptions)
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		Teardown(t, terraformOptions)
+	})
+	test_structure.RunTestStage(t, "setup", func() {
+		Setup(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
@@ -205,8 +225,11 @@ func TestQuickStartChefNodeScaleUp(t *testing.T) {
 }
 func TestQuickStartChefNodeScaleDown(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 1})
-	test_structure.RunTestStage(t, "setup_teardown", func() {
-		SetupTeardown(t, terraformOptions)
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		Teardown(t, terraformOptions)
+	})
+	test_structure.RunTestStage(t, "setup", func() {
+		Setup(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		sshUserName := "opc"
@@ -236,8 +259,11 @@ func TestQuickStartChefNodeScaleDown(t *testing.T) {
 }
 func TestQuickStartWithShapeBM(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"shape": *helpers.BareMetalShape()})
-	test_structure.RunTestStage(t, "setup_teardown", func() {
-		SetupTeardown(t, terraformOptions)
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		Teardown(t, terraformOptions)
+	})
+	test_structure.RunTestStage(t, "setup", func() {
+		Setup(t, terraformOptions)
 	})
 	test_structure.RunTestStage(t, "validate", func() {
 		// Run `terraform output` to get the value of an output variable
