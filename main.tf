@@ -61,6 +61,43 @@ resource "null_resource" "chef_server_create_user_and_org" {
   }
 }
 
+resource "local_file" "ssh_private_key" {
+  content  = "${var.ssh_private_key}"
+  filename = "ssh_private_key"
+}
+
+resource "local_file" "bastion_private_key" {
+  content  = "${var.bastion_private_key}"
+  filename = "bastion_private_key"
+}
+
+data "external" "chef_keys" {
+  depends_on = ["null_resource.chef_server_create_user_and_org", "local_file.ssh_private_key", "local_file.bastion_private_key"]
+  program    = ["bash", "${path.module}/scripts/remote-exec"]
+
+  query {
+    bastion_host        = "${var.bastion_public_ip}"
+    bastion_user        = "${var.bastion_user}"
+    host                = "${element(module.chef_server.private_ip, 0)}"
+    user                = "${var.ssh_user}"
+    private_key         = "${local_file.ssh_private_key.filename}"
+    bastion_private_key = "${local_file.bastion_private_key.filename}"
+    cmd                 = "jq -n --arg client_key \"`cat /home/opc/${var.chef_user_name}.pem`\" --arg validation_key \"`cat /home/opc/${var.chef_org_short_name}-validator.pem`\" '{\"client_key\":$client_key ,\"validation_key\":$validation_key}'"
+  }
+}
+
+resource "local_file" "client_key" {
+  depends_on = ["data.external.chef_keys"]
+  content    = "${lookup(data.external.chef_keys.result ,"client_key")}"
+  filename   = "${var.chef_user_name}.pem"
+}
+
+resource "local_file" "validation_key" {
+  depends_on = ["data.external.chef_keys"]
+  content    = "${lookup(data.external.chef_keys.result ,"validation_key")}"
+  filename   = "${var.chef_org_short_name}-validator.pem"
+}
+
 resource "null_resource" "chef_workstation_config" {
   triggers {
     instance_ip = "${element(module.chef_workstation.private_ip, 0)}"
@@ -68,6 +105,7 @@ resource "null_resource" "chef_workstation_config" {
 
   depends_on = [
     "null_resource.chef_server_create_user_and_org",
+    "data.external.chef_keys",
   ]
 
   connection {
@@ -82,20 +120,18 @@ resource "null_resource" "chef_workstation_config" {
     bastion_private_key = "${var.bastion_private_key}"
   }
 
-  provisioner "file" {
-    content     = "${var.ssh_private_key}"
-    destination = "~/.ssh/id_rsa"
-  }
-
   provisioner "remote-exec" {
     inline = [
       "if [ ! -d \".chef\" ]; then",
       "mkdir .chef",
       "fi",
       "cd .chef",
-      "chmod 600 /home/opc/.ssh/id_rsa",
-      "scp -q -o ConnectTimeout=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null opc@${module.chef_server.fqdn}:/home/opc/${var.chef_user_name}.pem ./${var.chef_user_name}.pem",
-      "scp -q -o ConnectTimeout=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null opc@${module.chef_server.fqdn}:/home/opc/${var.chef_org_short_name}-validator.pem ./${var.chef_org_short_name}-validator.pem",
+      "cat <<EOF >  ./${var.chef_user_name}.pem",
+      "${lookup(data.external.chef_keys.result ,"client_key")}",
+      "EOF",
+      "cat <<EOF >  ./${var.chef_org_short_name}-validator.pem",
+      "${lookup(data.external.chef_keys.result ,"validation_key")}",
+      "EOF",
       "cat <<'EOF' > config.rb",
       "current_dir = File.dirname(__FILE__)",
       "log_level                :info",

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+eval "$(jq -r '@sh "BASTION_HOST=\(.bastion_host) BASTION_USER=\(.bastion_user) BASTION_PRIVATE_KEY=\(.bastion_private_key) HOST=\(.host) USER=\(.user) PRIVATE_KEY=\(.private_key) CMD=\(.cmd)"')"
+chmod g-rwx,o-rwx $BASTION_PRIVATE_KEY $PRIVATE_KEY
+ssh -o StrictHostKeyChecking=no -o ProxyCommand="ssh -o StrictHostKeyChecking=no -W %h:%p -i $BASTION_PRIVATE_KEY $BASTION_USER@$BASTION_HOST" -i $PRIVATE_KEY $USER@$HOST $CMD

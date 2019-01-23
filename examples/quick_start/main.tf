@@ -20,8 +20,8 @@ module "chef" {
   source_ocid         = "${var.source_ocid[var.region]}"
   vcn_ocid            = "${oci_core_virtual_network.chef.id}"
   subnet_ocid         = "${oci_core_subnet.chef.0.id}"
-  ssh_authorized_keys = "${local_file.ssh_public_key.content}"
-  ssh_private_key     = "${local_file.ssh_private_key.content}"
+  ssh_authorized_keys = "${tls_private_key.ssh_key.public_key_openssh}"
+  ssh_private_key     = "${tls_private_key.ssh_key.private_key_pem}"
   shape               = "${var.shape}"
   bastion_public_ip   = "${element(module.bastion_host.public_ip, 0)}"
   bastion_user        = "${var.bastion_user}"
@@ -44,7 +44,7 @@ module "chef_node" {
   source_ocid           = "${var.source_ocid[var.region]}"
   vcn_ocid              = "${oci_core_virtual_network.chef.id}"
   subnet_ocid           = "${oci_core_subnet.chef.*.id}"
-  ssh_authorized_keys   = "${local_file.ssh_public_key.content}"
+  ssh_authorized_keys   = "${tls_private_key.ssh_key.public_key_openssh}"
   shape                 = "${var.shape}"
 }
 
@@ -57,58 +57,8 @@ module "bastion_host" {
   source_ocid           = "${var.source_ocid[var.region]}"
   vcn_ocid              = "${oci_core_virtual_network.chef.id}"
   subnet_ocid           = ["${oci_core_subnet.bastion.id}"]
-  ssh_authorized_keys   = "${local_file.ssh_public_key.content}"
+  ssh_authorized_keys   = "${tls_private_key.ssh_key.public_key_openssh}"
   shape                 = "${var.bastion_shape}"
-}
-
-resource "null_resource" "bastion_install_nc" {
-  triggers {
-    instance_ip = "${element(module.bastion_host.public_ip, 0)}"
-  }
-
-  depends_on = ["module.bastion_host"]
-
-  connection {
-    host        = "${element(module.bastion_host.public_ip, 0)}"
-    type        = "ssh"
-    user        = "${var.bastion_user}"
-    private_key = "${tls_private_key.ssh_key.private_key_pem}"
-    timeout     = "5m"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo yum install nc -y",
-    ]
-  }
-}
-
-data "local_file" "user_key" {
-  filename = "./${var.chef_user_name}.pem"
-
-  depends_on = [
-    "null_resource.get_chef_user_key",
-  ]
-}
-
-resource "null_resource" "get_chef_user_key" {
-  depends_on = [
-    "module.chef",
-    "null_resource.bastion_install_nc",
-  ]
-
-  provisioner "local-exec" {
-    command = <<EOF
-    chmod g-rwx,o-rwx ${local_file.ssh_private_key.filename}
-    scp -v -q -o ConnectTimeout=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${local_file.ssh_private_key.filename} -o ProxyCommand="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${local_file.ssh_private_key.filename}  ${var.bastion_user}@${element(module.bastion_host.public_ip, 0)} nc ${element(module.chef.chef_server_private_ip, 0)} 22" opc@${element(module.chef.chef_server_private_ip, 0)}:/home/opc/${var.chef_user_name}.pem .
-    EOF
-  }
-
-  provisioner "local-exec" {
-    when       = "destroy"
-    on_failure = "continue"
-    command    = "rm ./${var.chef_user_name}.pem"
-  }
 }
 
 resource "null_resource" "upload_cookbooks" {
@@ -150,7 +100,6 @@ resource "null_resource" "chef_node_run_recipes" {
 
   depends_on = [
     "null_resource.upload_cookbooks",
-    "null_resource.get_chef_user_key",
   ]
 
   count = "${var.chef_node_count}"
@@ -160,7 +109,7 @@ resource "null_resource" "chef_node_run_recipes" {
     node_name               = "${var.chef_node_name}_${count.index}"
     run_list                = "${var.chef_recipes}"
     user_name               = "${var.chef_user_name}"
-    user_key                = "${data.local_file.user_key.content}"
+    user_key                = "${file(module.chef.client_key)}"
     recreate_client         = true
     fetch_chef_certificates = true
 

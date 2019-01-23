@@ -73,3 +73,11 @@ output "bastion_private_key" {
 output "bastion_authorized_keys" {
   value = "${path.module}/${local_file.ssh_public_key.filename}"
 }
+
+output "client_key" {
+  value = "${path.module}/${module.chef.client_key}"
+}
+
+output "validation_key" {
+  value = "${path.module}/${module.chef.validation_key}"
+}

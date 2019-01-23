@@ -45,3 +45,11 @@ output "chef_node_private_ip" {
     "${module.chef_node.private_ip}",
   ]
 }
+
+output "client_key" {
+  value = "${module.chef.client_key}"
+}
+
+output "validation_key" {
+  value = "${module.chef.validation_key}"
+}
