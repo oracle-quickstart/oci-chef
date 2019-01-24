@@ -1,7 +1,6 @@
 package test
 
 import (
-	"./helpers"
 	"encoding/json"
 	"fmt"
 	"github.com/gruntwork-io/terratest/modules/ssh"
@@ -10,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"log"
 	"strings"
+	"terraform-oci-chef/test/helpers"
 	"testing"
 )
 
