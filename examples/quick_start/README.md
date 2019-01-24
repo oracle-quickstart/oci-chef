@@ -9,7 +9,7 @@
 - Run recipes [example_webserver::default] on Chef Nodes
  
 This configuration generally implements this:
-![Chef architecture](https://objectstorage.us-phoenix-1.oraclecloud.com/n/dxterraformdev/b/doc_image/o/b0008630-895b-4a70-99ba-7d8c14e12eb1.png)
+![Chef architecture](images/example.png)
 
 ### Using this example
 Copy terraform.tfvars.template to terraform.tfvars and update required information.
