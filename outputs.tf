@@ -34,3 +34,11 @@ output "chef_workstation_private_ip" {
     "${module.chef_workstation.private_ip}",
   ]
 }
+
+output "chef_client_key" {
+  value = "${local_file.chef_user_private_key_pem.filename}"
+}
+
+output "chef_validation_key" {
+  value = "${local_file.chef_org_private_key_pem.filename}"
+}

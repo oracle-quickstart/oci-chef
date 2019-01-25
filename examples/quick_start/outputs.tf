@@ -73,3 +73,19 @@ output "bastion_private_key" {
 output "bastion_authorized_keys" {
   value = "${path.module}/${local_file.ssh_public_key.filename}"
 }
+
+output "chef_user_name" {
+  value = "${var.chef_user_name}"
+}
+
+output "chef_org_short_name" {
+  value = "${var.chef_org_short_name}"
+}
+
+output "chef_client_key" {
+  value = "${path.module}/${module.chef.chef_client_key}"
+}
+
+output "chef_validation_key" {
+  value = "${path.module}/${module.chef.chef_validation_key}"
+}
