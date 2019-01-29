@@ -20,8 +20,12 @@ variable "source_ocid" {
   }
 }
 
-variable "vcn_display_name" {
+variable "chef_vcn_display_name" {
   default = "chef"
+}
+
+variable "bastion_vcn_display_name" {
+  default = "bastion"
 }
 
 #Chef server configuration
@@ -37,9 +41,7 @@ variable "chef_user_last_name" {
   default = "admin"
 }
 
-variable "chef_user_password" {
-  default = "Welcome1#"
-}
+variable "chef_user_password" {}
 
 variable "chef_user_email" {
   default = "nobody@noreply.com"
@@ -73,6 +75,10 @@ variable "shape" {
   default = "VM.Standard2.1"
 }
 
+variable "ssh_user" {
+  default = "opc"
+}
+
 # Bastion
 variable "bastion_user" {
   description = "The SSH user to connect to the bastion host."
@@ -81,4 +87,12 @@ variable "bastion_user" {
 
 variable "bastion_shape" {
   default = "VM.Standard2.1"
+}
+
+variable "os_chef_bucket_name" {
+  default = "chef"
+}
+
+variable "os_ssk_key_bucket_name" {
+  default = "ssh_keys"
 }

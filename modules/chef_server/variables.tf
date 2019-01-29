@@ -23,4 +23,3 @@ variable "bastion_user" {}
 variable "bastion_private_key" {}
 
 variable "chef-server-core_rpm_url" {}
-variable "chefdk_rpm_url" {}

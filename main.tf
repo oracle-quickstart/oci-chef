@@ -13,7 +13,6 @@ module "chef_server" {
   bastion_user             = "${var.bastion_user}"
   bastion_private_key      = "${var.bastion_private_key}"
   chef-server-core_rpm_url = "${var.chef-server-core_rpm_url}"
-  chefdk_rpm_url           = "${var.chefdk_rpm_url}"
 }
 
 module "chef_workstation" {
@@ -33,22 +32,9 @@ module "chef_workstation" {
   chefdk_rpm_url        = "${var.chefdk_rpm_url}"
 }
 
-resource "tls_private_key" "chef_org" {
-  algorithm = "RSA"
-}
-
-resource "local_file" "chef_org_private_key_pem" {
-  filename = "${var.chef_org_short_name}-validator.pem"
-  content  = "${tls_private_key.chef_org.private_key_pem}"
-}
-
-resource "tls_private_key" "chef_user" {
-  algorithm = "RSA"
-}
-
-resource "local_file" "chef_user_private_key_pem" {
-  filename = "${var.chef_user_name}.pem"
-  content  = "${tls_private_key.chef_user.private_key_pem}"
+locals {
+  defaultScheme          = "https"
+  DefaultHostURLTemplate = "oraclecloud.com"
 }
 
 resource "null_resource" "chef_server_create_user_and_org" {
@@ -58,8 +44,6 @@ resource "null_resource" "chef_server_create_user_and_org" {
 
   depends_on = [
     "module.chef_server",
-    "tls_private_key.chef_org",
-    "tls_private_key.chef_user",
   ]
 
   provisioner "remote-exec" {
@@ -69,24 +53,8 @@ resource "null_resource" "chef_server_create_user_and_org" {
       "fi",
       "sudo chef-server-ctl user-create ${var.chef_user_name} ${var.chef_user_fist_name} ${var.chef_user_last_name} ${var.chef_user_email} '${var.chef_user_password}' --filename .chef/${var.chef_user_name}.pem",
       "sudo chef-server-ctl org-create ${var.chef_org_short_name} '${var.chef_org_full_name}' --association_user ${var.chef_user_name} --filename .chef/${var.chef_org_short_name}-validator.pem",
-      "cat <<'EOF' > .chef/user.pub",
-      "${tls_private_key.chef_user.public_key_pem}",
-      "EOF",
-      "cat <<'EOF' > .chef/org.pub",
-      "${tls_private_key.chef_org.public_key_pem}",
-      "EOF",
-      "cat <<'EOF' > .chef/config.rb",
-      "current_dir = File.dirname(__FILE__)",
-      "log_level                :info",
-      "log_location             STDOUT",
-      "node_name                \"${var.chef_user_name}\"",
-      "client_key               \"#{current_dir}/${var.chef_user_name}.pem\"",
-      "chef_server_url          \"https://${module.chef_server.fqdn}/organizations/${var.chef_org_short_name}\"",
-      "knife[:editor] = \"/usr/bin/vim\"",
-      "EOF",
-      "knife ssl fetch",
-      "knife user key create ${var.chef_user_name}  --public-key .chef/user.pub -d",
-      "knife client key edit ${var.chef_org_short_name}-validator default --public-key .chef/org.pub -d",
+      "curl -X PUT --data-binary @.chef/${var.chef_user_name}.pem   ${local.defaultScheme}://objectstorage.${var.region}.${local.DefaultHostURLTemplate}${oci_objectstorage_preauthrequest.upload.access_uri}${var.chef_user_name}.pem",
+      "curl -X PUT --data-binary @.chef/${var.chef_org_short_name}-validator.pem    ${local.defaultScheme}://objectstorage.${var.region}.${local.DefaultHostURLTemplate}${oci_objectstorage_preauthrequest.upload.access_uri}${var.chef_org_short_name}-validator.pem",
     ]
 
     connection {
@@ -130,10 +98,10 @@ resource "null_resource" "chef_workstation_config" {
       "mkdir .chef",
       "fi",
       "cat <<'EOF' > .chef/${var.chef_user_name}.pem",
-      "${tls_private_key.chef_user.private_key_pem}",
+      "${data.oci_objectstorage_object.chef_user_name_pem.content}",
       "EOF",
       "cat <<'EOF' > .chef/${var.chef_org_short_name}-validator.pem",
-      "${tls_private_key.chef_org.private_key_pem}",
+      "${data.oci_objectstorage_object.chef_org_short_name_pem.content}",
       "EOF",
       "cat <<'EOF' > .chef/config.rb",
       "current_dir = File.dirname(__FILE__)",

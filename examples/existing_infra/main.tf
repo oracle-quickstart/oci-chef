@@ -1,5 +1,6 @@
 module "chef" {
   source              = "../../"
+  region              = "${var.region}"
   compartment_ocid    = "${var.compartment_ocid}"
   source_ocid         = "${var.source_ocid[var.region]}"
   vcn_ocid            = "${var.vcn_ocid}"
@@ -17,6 +18,7 @@ module "chef" {
   chef_user_email     = "${var.chef_user_email}"
   chef_org_short_name = "${var.chef_org_short_name}"
   chef_org_full_name  = "${var.chef_org_full_name}"
+  os_chef_bucket_name = "${var.os_chef_bucket_name}"
 }
 
 module "chef_node" {
@@ -40,7 +42,7 @@ resource "null_resource" "upload_cookbooks" {
   connection {
     host        = "${element(module.chef.chef_workstation_private_ip, 0)}"
     type        = "ssh"
-    user        = "opc"
+    user        = "${var.ssh_user}"
     private_key = "${file(var.ssh_private_key)}"
     timeout     = "5m"
 
@@ -70,7 +72,6 @@ resource "null_resource" "chef_node_run_recipes" {
 
   depends_on = [
     "null_resource.upload_cookbooks",
-    "null_resource.get_chef_user_key",
   ]
 
   count = "${var.chef_node_count}"
@@ -80,14 +81,14 @@ resource "null_resource" "chef_node_run_recipes" {
     node_name               = "${var.chef_node_name}_${count.index}"
     run_list                = "${var.chef_recipes}"
     user_name               = "${var.chef_user_name}"
-    user_key                = "${file(module.chef.chef_client_key)}"
+    user_key                = "${data.oci_objectstorage_object.chef_user_name_pem.content}"
     recreate_client         = true
     fetch_chef_certificates = true
 
     connection {
       host        = "${element(module.chef_node.private_ip, count.index)}"
       type        = "ssh"
-      user        = "opc"
+      user        = "${var.ssh_user}"
       private_key = "${file(var.ssh_private_key)}"
       timeout     = "5m"
 
@@ -107,7 +108,7 @@ resource "null_resource" "chef_node_run_recipes" {
 
     connection {
       host        = "${element(module.chef.chef_workstation_private_ip, 0)}"
-      type        = "ssh"
+      type        = "${var.ssh_user}"
       user        = "opc"
       private_key = "${file(var.ssh_private_key)}"
       timeout     = "5m"

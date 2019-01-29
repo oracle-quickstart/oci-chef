@@ -45,27 +45,3 @@ resource "null_resource" "install_chef_server_core" {
     }
   }
 }
-
-resource "null_resource" "install_chefdk" {
-  triggers {
-    private_ip = "${element(module.chef_server.private_ip, 0)}"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo rpm -Uvh ${var.chefdk_rpm_url}",
-    ]
-
-    connection {
-      host        = "${element(module.chef_server.private_ip, 0)}"
-      type        = "ssh"
-      user        = "${var.ssh_user}"
-      private_key = "${var.ssh_private_key}"
-      timeout     = "5m"
-
-      bastion_host        = "${var.bastion_public_ip}"
-      bastion_user        = "${var.bastion_user}"
-      bastion_private_key = "${var.bastion_private_key}"
-    }
-  }
-}

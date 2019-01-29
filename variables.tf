@@ -1,3 +1,4 @@
+variable "region" {}
 variable "compartment_ocid" {}
 
 variable "chef_server_name" {
@@ -56,3 +57,5 @@ variable "chef-server-core_rpm_url" {
 variable "chefdk_rpm_url" {
   default = "https://packages.chef.io/files/stable/chefdk/3.3.23/el/7/chefdk-3.3.23-1.el7.x86_64.rpm"
 }
+
+variable "os_chef_bucket_name" {}

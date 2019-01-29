@@ -18,9 +18,9 @@ terraform init
 ```
 View what Terraform plans do before actually doing it:
 ```bash
-terraform plan
+terraform plan -var 'chef_user_password=yourPassword'
 ```
 Use Terraform to Provision resources and Jenkins cluster on OCI:
 ```bash
-terraform apply
+terraform apply -var 'chef_user_password=yourPassword'
 ```

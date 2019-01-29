@@ -58,34 +58,37 @@ output "chef_node_private_ip" {
   ]
 }
 
-output "ssh_authorized_keys" {
-  value = "${path.module}/${local_file.ssh_public_key.filename}"
+output "ssh_user" {
+  value = "${var.ssh_user}"
 }
 
-output "ssh_private_key" {
-  value = "${path.module}/${local_file.ssh_private_key.filename}"
+output "bastion_user" {
+  value = "${var.bastion_user}"
 }
 
-output "bastion_private_key" {
-  value = "${path.module}/${local_file.ssh_private_key.filename}"
+output "chef" {
+  value = {
+    admin_user_name        = "${var.chef_user_name}"
+    orgzination_short_name = "${var.chef_org_short_name}"
+  }
 }
 
-output "bastion_authorized_keys" {
-  value = "${path.module}/${local_file.ssh_public_key.filename}"
+output "object_storage_chef" {
+  value = {
+    namespace      = "${data.oci_objectstorage_namespace.os.namespace}"
+    bucket         = "${lookup(module.chef.os_chef, "bucket")}"
+    client_key     = "${lookup(module.chef.os_chef, "client_key")}"
+    validation_key = "${lookup(module.chef.os_chef, "validation_key")}"
+  }
 }
 
-output "chef_user_name" {
-  value = "${var.chef_user_name}"
-}
-
-output "chef_org_short_name" {
-  value = "${var.chef_org_short_name}"
-}
-
-output "chef_client_key" {
-  value = "${path.module}/${module.chef.chef_client_key}"
-}
-
-output "chef_validation_key" {
-  value = "${path.module}/${module.chef.chef_validation_key}"
+output "object_storage_ssh_keys" {
+  value = {
+    namespace               = "${data.oci_objectstorage_namespace.os.namespace}"
+    bucket                  = "${oci_objectstorage_bucket.ssh_keys.name}"
+    bastion_private_key     = "${oci_objectstorage_object.bastion_private_key.object}"
+    bastion_authorized_keys = "${oci_objectstorage_object.bastion_authorized_keys.object}"
+    ssh_private_key         = "${oci_objectstorage_object.ssh_private_key.object}"
+    ssh_authorized_keys     = "${oci_objectstorage_object.ssh_authorized_keys.object}"
+  }
 }
