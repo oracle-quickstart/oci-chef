@@ -41,14 +41,33 @@ variable "block_storage_sizes_in_gbs" {
 }
 
 #Chef server configuration
-variable "chef_user_name" {}
+variable "chef_user_name" {
+  default = "chefadmin"
+}
 
-variable "chef_user_fist_name" {}
-variable "chef_user_last_name" {}
-variable "chef_user_password" {}
-variable "chef_user_email" {}
-variable "chef_org_short_name" {}
-variable "chef_org_full_name" {}
+variable "chef_user_fist_name" {
+  default = "chef"
+}
+
+variable "chef_user_last_name" {
+  default = "admin"
+}
+
+variable "chef_user_password" {
+  default = "Welcome1#"
+}
+
+variable "chef_user_email" {
+  default = "nobody@noreply.com"
+}
+
+variable "chef_org_short_name" {
+  default = "demo"
+}
+
+variable "chef_org_full_name" {
+  default = "Demo Inc."
+}
 
 #Chef node configation
 variable "chef_node_count" {

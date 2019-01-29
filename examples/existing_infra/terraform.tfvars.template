@@ -1,0 +1,29 @@
+# Oracle Cloud Infrastructure Authentication details
+tenancy_ocid = "<tenancy OCID>"
+user_ocid = "<user OCID>"
+fingerprint = "<PEM key fingerprint>"
+private_key_path = "<path to the private key that matches the fingerprint above>"
+
+# Region
+region = "<region in which to operate, example: us-ashburn-1, us-phoenix-1>"
+
+# Compartment
+compartment_ocid = "<compartment OCID>"
+
+# Compute Instance Configurations
+ssh_authorized_keys = "<Public SSH keys path to be included in the `~/.ssh/authorized_keys` file for the default user on the instance.>"
+
+ssh_private_key = "<Private key path to access the instance>"
+
+vcn_ocid = "<Unique identifier (OCID) of the VCN.>"
+
+subnet_ocid = "<Subnet OCID in which to place the Chef Server and Workstation primary VNIC>"
+
+chef_node_subnets_ocid = ["<Subnet OCIDs in which to place the Chef Nodes instance primary VNIC>"]
+
+#Bastion
+bastion_private_key = "<Bastion host SSH private key path>"
+
+bastion_public_ip = "<Bastion host public IP>"
+
+bastion_user = "<Bation host SSH login user name>"

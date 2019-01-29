@@ -32,34 +32,6 @@ module "chef_node" {
   shape                 = "${var.shape}"
 }
 
-data "local_file" "user_key" {
-  filename = "./${var.chef_user_name}.pem"
-
-  depends_on = [
-    "null_resource.get_chef_user_key",
-  ]
-}
-
-resource "null_resource" "get_chef_user_key" {
-  depends_on = [
-    "module.chef",
-  ]
-
-  provisioner "local-exec" {
-    command = <<EOT
-    chmod 600 ${var.ssh_private_key}
-    chmod 600 ${var.bastion_private_key}
-    scp -v -q -o ConnectTimeout=30 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.ssh_private_key} -o ProxyCommand="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${var.bastion_private_key}  ${var.bastion_user}@${var.bastion_public_ip} nc ${element(module.chef.chef_server_private_ip, 0)} 22" opc@${element(module.chef.chef_server_private_ip, 0)}:/home/opc/${var.chef_user_name}.pem .
-    EOT
-  }
-
-  provisioner "local-exec" {
-    when       = "destroy"
-    on_failure = "continue"
-    command    = "rm ./${var.chef_user_name}.pem"
-  }
-}
-
 resource "null_resource" "upload_cookbooks" {
   depends_on = [
     "module.chef",
@@ -70,7 +42,7 @@ resource "null_resource" "upload_cookbooks" {
     type        = "ssh"
     user        = "opc"
     private_key = "${file(var.ssh_private_key)}"
-    timeout     = "3m"
+    timeout     = "5m"
 
     bastion_host        = "${var.bastion_public_ip}"
     bastion_user        = "${var.bastion_user}"
@@ -85,7 +57,6 @@ resource "null_resource" "upload_cookbooks" {
       "fi",
       "git clone https://github.com/oracle/terraform-examples",
       "cd /home/opc/terraform-examples/examples/oci/chef/cookbooks/example_webserver",
-      "knife ssl fetch",
       "berks install",
       "berks upload",
     ]
@@ -109,7 +80,7 @@ resource "null_resource" "chef_node_run_recipes" {
     node_name               = "${var.chef_node_name}_${count.index}"
     run_list                = "${var.chef_recipes}"
     user_name               = "${var.chef_user_name}"
-    user_key                = "${data.local_file.user_key.content}"
+    user_key                = "${file(module.chef.chef_client_key)}"
     recreate_client         = true
     fetch_chef_certificates = true
 
@@ -118,7 +89,7 @@ resource "null_resource" "chef_node_run_recipes" {
       type        = "ssh"
       user        = "opc"
       private_key = "${file(var.ssh_private_key)}"
-      timeout     = "3m"
+      timeout     = "5m"
 
       bastion_host        = "${var.bastion_public_ip}"
       bastion_user        = "${var.bastion_user}"
@@ -139,7 +110,7 @@ resource "null_resource" "chef_node_run_recipes" {
       type        = "ssh"
       user        = "opc"
       private_key = "${file(var.ssh_private_key)}"
-      timeout     = "3m"
+      timeout     = "5m"
 
       bastion_host        = "${var.bastion_public_ip}"
       bastion_user        = "${var.bastion_user}"

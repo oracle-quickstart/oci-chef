@@ -27,7 +27,7 @@ resource "null_resource" "install_chefdk" {
       type        = "ssh"
       user        = "${var.ssh_user}"
       private_key = "${var.ssh_private_key}"
-      timeout     = "3m"
+      timeout     = "5m"
 
       bastion_host        = "${var.bastion_public_ip}"
       bastion_user        = "${var.bastion_user}"

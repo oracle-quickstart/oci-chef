@@ -6,6 +6,7 @@
 - Json config file default value is inputs_config.json , or read from environment parameter: JSON_CONFIG_FILE
 ## Example
 ```bash
+go get -t
 BARE_METAL_SHAPE=BM.Standard1.36 go test -timeout 30m -run QuickStart
 ```
 # Debug validate stage locally
