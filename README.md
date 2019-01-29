@@ -13,6 +13,7 @@ The following code shows how to deploy Chef Server & Workstation using this modu
 ```txt
 module "chef" {
   source              = "git::ssh://git@bitbucket.oci.oraclecorp.com:7999/tfs/terraform-oci-chef.git"
+  region              = "${var.region}"
   compartment_ocid    = "${var.compartment_ocid}"
   source_ocid         = "${var.source_ocid}"
   vcn_ocid            = "${var.vcn_ocid}"
@@ -34,6 +35,7 @@ module "chef" {
 ```
 Argument | Description | Type | Default | Required
 --- | --- | --- | --- | ---
+region | region in which to operate, example: us-ashburn-1, us-phoenix-1. | string | n/a | yes
 compartment_ocid | OCID of the compartment. | string | n/a | yes
 source_ocid | OCID of an image of Oracle Enterprise Linux 7. For more information, see [Oracle Cloud Infrastructure: Images](https://docs.cloud.oracle.com/iaas/images/). | string | n/a | yes
 vcn_ocid | Unique identifier (OCID) of the VCN. | string | n/a | yes
