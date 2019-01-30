@@ -23,7 +23,7 @@ module "chef" {
   chef_user_email     = "${var.chef_user_email}"
   chef_org_short_name = "${var.chef_org_short_name}"
   chef_org_full_name  = "${var.chef_org_full_name}"
-  os_chef_bucket_name = "${var.os_chef_bucket_name}"
+  os_chef_bucket_name = "${coalesce(var.os_chef_bucket_name,random_id.chef_bucket_name.hex)}"
 }
 
 module "chef_node" {
@@ -52,6 +52,10 @@ module "bastion_host" {
   shape                 = "${var.bastion_shape}"
 }
 
+locals {
+  cookbooks_path = "${path.module}/cookbooks"
+}
+
 resource "null_resource" "upload_cookbooks" {
   depends_on = [
     "module.chef",
@@ -69,14 +73,14 @@ resource "null_resource" "upload_cookbooks" {
     bastion_private_key = "${tls_private_key.ssh_key.private_key_pem}"
   }
 
+  provisioner "file" {
+    destination = "/home/opc"
+    source      = "${local.cookbooks_path}"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "sudo yum install git -y",
-      "if [  -d \"terraform-examples\" ]; then",
-      "rm -rf terraform-examples",
-      "fi",
-      "git clone https://github.com/oracle/terraform-examples",
-      "cd /home/opc/terraform-examples/examples/oci/chef/cookbooks/example_webserver",
+      "cd /home/opc/cookbooks/example_webserver",
       "berks install",
       "berks upload",
     ]

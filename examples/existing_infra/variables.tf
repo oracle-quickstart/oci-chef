@@ -100,7 +100,7 @@ variable "bastion_private_key" {
 variable "bastion_public_ip" {}
 
 variable "os_chef_bucket_name" {
-  default = "chef"
+  default = ""
 }
 
 variable "ssh_user" {

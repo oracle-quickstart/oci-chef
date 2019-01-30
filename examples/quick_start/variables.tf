@@ -90,9 +90,9 @@ variable "bastion_shape" {
 }
 
 variable "os_chef_bucket_name" {
-  default = "chef"
+  default = ""
 }
 
 variable "os_ssk_key_bucket_name" {
-  default = "ssh_keys"
+  default = ""
 }

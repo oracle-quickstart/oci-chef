@@ -18,7 +18,7 @@ module "chef" {
   chef_user_email     = "${var.chef_user_email}"
   chef_org_short_name = "${var.chef_org_short_name}"
   chef_org_full_name  = "${var.chef_org_full_name}"
-  os_chef_bucket_name = "${var.os_chef_bucket_name}"
+  os_chef_bucket_name = "${coalesce(var.os_chef_bucket_name,random_id.chef_bucket_name.hex)}"
 }
 
 module "chef_node" {

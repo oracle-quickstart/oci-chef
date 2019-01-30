@@ -30,6 +30,7 @@ module "chef" {
   chef_user_email     = "${var.chef_user_email}"
   chef_org_short_name = "${var.chef_org_short_name}"
   chef_org_full_name  = "${var.chef_org_full_name}"
+  os_chef_bucket_name = "${var.os_chef_bucket_name}"
 }
 
 ```
@@ -52,6 +53,7 @@ chef_user_password | Chef administrator password. | string | n/a | yes
 chef_user_email | Chef administrator E-mail address. | string | n/a | yes
 chef_org_short_name | Chef organization short name. | string | n/a | yes
 chef_org_full_name | Chef organization full name. | string | n/a | yes
+os_chef_bucket_name | OCI Object Storage Bucket name, use it to create a new Bucket | string | n/a | yes
 chef_server_name | Chef Server host name | string | "chefserver" | no
 chef_workstation_name | Chef Workstation host name | string | "chefworkstation" |no
 ssh_user | Chef Server & Workstation SSH login user name | string | "opc" | no

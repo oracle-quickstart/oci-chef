@@ -1,3 +1,8 @@
+resource "random_id" "chef_bucket_name" {
+  byte_length = 8
+  prefix      = "chef-"
+}
+
 data "oci_objectstorage_namespace" "os" {}
 
 data "oci_objectstorage_object" "chef_user_name_pem" {
