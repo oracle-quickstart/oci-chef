@@ -25,7 +25,7 @@ BARE_METAL_SHAPE=BM.Standard1.36 go test -timeout 30m -run QuickStart
 - Add environment parameters:SKIP_terraform_init=true;SKIP_terraform_destroy=true
 ## Example
 ```bash
-cd ../Example/Quick_Start
+cd ../examples/quick_start
 terraform init
 terraform apply --auto-approve
 GOCACHE=off SKIP_terraform_init=true SKIP_terraform_destroy=true go test -timeout 30m -run QuickStart$
