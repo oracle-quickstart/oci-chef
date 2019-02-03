@@ -2,10 +2,6 @@ resource "oci_objectstorage_bucket" "chef" {
   compartment_id = "${var.compartment_ocid}"
   name           = "${var.os_chef_bucket_name}"
   namespace      = "${data.oci_objectstorage_namespace.os.namespace}"
-
-  lifecycle {
-    ignore_changes = ["name"]
-  }
 }
 
 resource "oci_objectstorage_object" "chef_validation_key" {
