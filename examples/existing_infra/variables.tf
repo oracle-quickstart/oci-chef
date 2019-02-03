@@ -67,22 +67,6 @@ variable "chef_org_full_name" {
   default = "Demo Inc."
 }
 
-#Chef node configation
-variable "chef_node_count" {
-  default = 3
-}
-
-variable "chef_recipes" {
-  description = "List of recipes for Chef to run"
-  type        = "list"
-  default     = ["recipe[example_webserver::default]"]
-}
-
-variable "chef_node_name" {
-  description = "Chef Server Node Name, must be unique"
-  default     = "httpd_server"
-}
-
 variable "shape" {
   default = "VM.Standard2.1"
 }

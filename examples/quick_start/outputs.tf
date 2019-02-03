@@ -42,22 +42,6 @@ output "chef_workstation_private_ip" {
   ]
 }
 
-output "chef_node_instance_id" {
-  description = "ocid of created chef nodes. "
-
-  value = [
-    "${module.chef_node.instance_id}",
-  ]
-}
-
-output "chef_node_private_ip" {
-  description = "Private IPs of created chef nodes. "
-
-  value = [
-    "${module.chef_node.private_ip}",
-  ]
-}
-
 output "ssh_user" {
   value = "${var.ssh_user}"
 }

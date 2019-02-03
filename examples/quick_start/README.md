@@ -27,8 +27,3 @@ Use Terraform to Provision resources and Jenkins cluster on OCI:
 ```bash
 terraform apply -var 'chef_user_password=yourPassword'
 ```
-
-### Verification
-- Download bastion host SSH private key from Object Storage
-- Create a tunnel to Chef node:```ssh -i <bastion_private_key.pem> -L 1234:<chef_node_private_ip>:80 <bastion_user>@<bastion_public_ip>```
-- Run test: ```curl -w "\n" http://localhost:1234``` , expected return: _Hello World!_

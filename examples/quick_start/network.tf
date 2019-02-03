@@ -156,10 +156,8 @@ data "oci_identity_availability_domains" "ads" {
 # Create Bastion Subnet
 ############################################
 resource "oci_core_subnet" "bastion" {
-  depends_on = ["data.oci_identity_availability_domains.ads"]
-
-  //availability_domain = "${data.template_file.ad_names.*.rendered[length(data.template_file.ad_names.*.rendered) - 1]}"
-  availability_domain = "${lookup(data.oci_identity_availability_domains.ads.availability_domains[0], "name")}"
+  depends_on          = ["data.oci_identity_availability_domains.ads"]
+  availability_domain = "${lookup(data.oci_identity_availability_domains.ads.availability_domains[var.bastion_ad], "name")}"
   compartment_id      = "${var.compartment_ocid}"
   cidr_block          = "${cidrsubnet(oci_core_virtual_network.bastion.cidr_block, 6 , 0)}"
   security_list_ids   = ["${oci_core_security_list.bastion.id}"]
@@ -172,13 +170,9 @@ resource "oci_core_subnet" "bastion" {
 # Create chef Subnets
 ############################################
 resource "oci_core_subnet" "chef" {
-  //count                      = "${length(data.template_file.ad_names.*.rendered)}"
-  depends_on          = ["data.oci_identity_availability_domains.ads"]
-  count               = "${length(data.oci_identity_availability_domains.ads.availability_domains)}"
-  availability_domain = "${lookup(data.oci_identity_availability_domains.ads.availability_domains[count.index], "name")}"
-
-  //availability_domain        = "${data.template_file.ad_names.*.rendered[count.index]}"
-  cidr_block                 = "${cidrsubnet(oci_core_virtual_network.chef.cidr_block, 2 , count.index)}"
+  depends_on                 = ["data.oci_identity_availability_domains.ads"]
+  availability_domain        = "${lookup(data.oci_identity_availability_domains.ads.availability_domains[var.chef_ad], "name")}"
+  cidr_block                 = "${cidrsubnet(oci_core_virtual_network.chef.cidr_block, 2 , 0)}"
   security_list_ids          = ["${oci_core_security_list.chef.id}"]
   compartment_id             = "${var.compartment_ocid}"
   vcn_id                     = "${oci_core_virtual_network.chef.id}"

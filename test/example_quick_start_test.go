@@ -2,7 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gruntwork-io/terratest/modules/ssh"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
@@ -145,165 +144,16 @@ func TestQuickStartChefWorkstation(t *testing.T) {
 			SshKeyPair:  serverKeyPair,
 			SshUserName: sshUserName,
 		}
-		cmdReturn := ssh.CheckPrivateSshConnection(t, bastion, workstation, "knife node list -F json")
-		var nodes []string
-		err = json.NewDecoder(strings.NewReader(cmdReturn)).Decode(&nodes)
+		cmdReturn := ssh.CheckPrivateSshConnection(t, bastion, workstation, "knife client list -F json")
+		var client []string
+		err = json.NewDecoder(strings.NewReader(cmdReturn)).Decode(&client)
 		if err != nil {
 			t.Error("Error while remote exec output")
 		}
-		log.Println(nodes)
-		assert.Equal(t, 3, len(nodes))
+		log.Println(client)
+		//assert.Equal(t, 1, len(client))
 	})
 
-}
-func TestQuickStartChefNode(t *testing.T) {
-	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 3})
-	defer test_structure.RunTestStage(t, "teardown", func() {
-		Teardown(t, terraformOptions)
-	})
-	test_structure.RunTestStage(t, "setup", func() {
-		Setup(t, terraformOptions)
-	})
-	test_structure.RunTestStage(t, "validate", func() {
-		sshUserName := terraform.Output(t, terraformOptions, "ssh_user")
-		bastionUserName := terraform.Output(t, terraformOptions, "bastion_user")
-		objectStorageSshKeys := terraform.OutputMap(t, terraformOptions, "object_storage_ssh_keys")
-		serverKeyPair, err := helpers.GetKeyPairFromObjectStorage(objectStorageSshKeys["bucket"], objectStorageSshKeys["ssh_authorized_keys"], objectStorageSshKeys["ssh_private_key"])
-		if err != nil {
-			assert.NotNil(t, serverKeyPair)
-		}
-		bastionKeyPair, err := helpers.GetKeyPairFromObjectStorage(objectStorageSshKeys["bucket"], objectStorageSshKeys["bastion_authorized_keys"], objectStorageSshKeys["bastion_private_key"])
-		if err != nil {
-			assert.NotNil(t, bastionKeyPair)
-		}
-		bastion := ssh.Host{
-			Hostname:    terraform.Output(t, terraformOptions, "bastion_public_ip"),
-			SshKeyPair:  bastionKeyPair,
-			SshUserName: bastionUserName,
-		}
-		nodes := terraform.OutputList(t, terraformOptions, "chef_node_private_ip")
-		assert.Equal(t, terraformOptions.Vars["chef_node_count"], len(nodes))
-		for _, node := range nodes {
-			chefNode := ssh.Host{
-				Hostname:    node,
-				SshKeyPair:  serverKeyPair,
-				SshUserName: sshUserName,
-			}
-			cmdReturn := ssh.CheckPrivateSshConnection(t, bastion, chefNode, "sudo systemctl is-active httpd.service")
-			assert.Equal(t, "active", strings.TrimSuffix(cmdReturn, "\n"))
-		}
-	})
-
-}
-func TestQuickStartHttpService(t *testing.T) {
-	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{})
-	defer test_structure.RunTestStage(t, "teardown", func() {
-		Teardown(t, terraformOptions)
-	})
-	test_structure.RunTestStage(t, "setup", func() {
-		Setup(t, terraformOptions)
-	})
-	test_structure.RunTestStage(t, "validate", func() {
-		bastionUserName := terraform.Output(t, terraformOptions, "bastion_user")
-		objectStorageSshKeys := terraform.OutputMap(t, terraformOptions, "object_storage_ssh_keys")
-		serverKeyPair, err := helpers.GetKeyPairFromObjectStorage(objectStorageSshKeys["bucket"], objectStorageSshKeys["ssh_authorized_keys"], objectStorageSshKeys["ssh_private_key"])
-		if err != nil {
-			assert.NotNil(t, serverKeyPair)
-		}
-		bastionKeyPair, err := helpers.GetKeyPairFromObjectStorage(objectStorageSshKeys["bucket"], objectStorageSshKeys["bastion_authorized_keys"], objectStorageSshKeys["bastion_private_key"])
-		if err != nil {
-			assert.NotNil(t, bastionKeyPair)
-		}
-		bastion := ssh.Host{
-			Hostname:    terraform.Output(t, terraformOptions, "bastion_public_ip"),
-			SshKeyPair:  bastionKeyPair,
-			SshUserName: bastionUserName,
-		}
-		nodes := terraform.OutputList(t, terraformOptions, "chef_node_private_ip")
-		for _, node := range nodes {
-			cmdReturn := ssh.CheckSshCommand(t, bastion, fmt.Sprintf("curl -s -o /dev/null -w \"%%{http_code}\" http://%s/", node))
-			assert.Equal(t, "200", cmdReturn)
-		}
-	})
-
-}
-func TestQuickStartChefNodeScaleUp(t *testing.T) {
-	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 4})
-	defer test_structure.RunTestStage(t, "teardown", func() {
-		Teardown(t, terraformOptions)
-	})
-	test_structure.RunTestStage(t, "setup", func() {
-		Setup(t, terraformOptions)
-	})
-	test_structure.RunTestStage(t, "validate", func() {
-		sshUserName := terraform.Output(t, terraformOptions, "ssh_user")
-		bastionUserName := terraform.Output(t, terraformOptions, "bastion_user")
-		objectStorageSshKeys := terraform.OutputMap(t, terraformOptions, "object_storage_ssh_keys")
-		serverKeyPair, err := helpers.GetKeyPairFromObjectStorage(objectStorageSshKeys["bucket"], objectStorageSshKeys["ssh_authorized_keys"], objectStorageSshKeys["ssh_private_key"])
-		if err != nil {
-			assert.NotNil(t, serverKeyPair)
-		}
-		bastionKeyPair, err := helpers.GetKeyPairFromObjectStorage(objectStorageSshKeys["bucket"], objectStorageSshKeys["bastion_authorized_keys"], objectStorageSshKeys["bastion_private_key"])
-		if err != nil {
-			assert.NotNil(t, bastionKeyPair)
-		}
-		bastion := ssh.Host{
-			Hostname:    terraform.Output(t, terraformOptions, "bastion_public_ip"),
-			SshKeyPair:  bastionKeyPair,
-			SshUserName: bastionUserName,
-		}
-		nodes := terraform.OutputList(t, terraformOptions, "chef_node_private_ip")
-		assert.Equal(t, terraformOptions.Vars["chef_node_count"], len(nodes))
-		for _, node := range nodes {
-			chefNode := ssh.Host{
-				Hostname:    node,
-				SshKeyPair:  serverKeyPair,
-				SshUserName: sshUserName,
-			}
-			cmdReturn := ssh.CheckPrivateSshConnection(t, bastion, chefNode, "sudo systemctl is-active httpd.service")
-			assert.Equal(t, "active", strings.TrimSuffix(cmdReturn, "\n"))
-		}
-	})
-}
-func TestQuickStartChefNodeScaleDown(t *testing.T) {
-	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"chef_node_count": 1})
-	defer test_structure.RunTestStage(t, "teardown", func() {
-		Teardown(t, terraformOptions)
-	})
-	test_structure.RunTestStage(t, "setup", func() {
-		Setup(t, terraformOptions)
-	})
-	test_structure.RunTestStage(t, "validate", func() {
-		sshUserName := terraform.Output(t, terraformOptions, "ssh_user")
-		bastionUserName := terraform.Output(t, terraformOptions, "bastion_user")
-		objectStorageSshKeys := terraform.OutputMap(t, terraformOptions, "object_storage_ssh_keys")
-		serverKeyPair, err := helpers.GetKeyPairFromObjectStorage(objectStorageSshKeys["bucket"], objectStorageSshKeys["ssh_authorized_keys"], objectStorageSshKeys["ssh_private_key"])
-		if err != nil {
-			assert.NotNil(t, serverKeyPair)
-		}
-		bastionKeyPair, err := helpers.GetKeyPairFromObjectStorage(objectStorageSshKeys["bucket"], objectStorageSshKeys["bastion_authorized_keys"], objectStorageSshKeys["bastion_private_key"])
-		if err != nil {
-			assert.NotNil(t, bastionKeyPair)
-		}
-		bastion := ssh.Host{
-			Hostname:    terraform.Output(t, terraformOptions, "bastion_public_ip"),
-			SshKeyPair:  bastionKeyPair,
-			SshUserName: bastionUserName,
-		}
-		workstation := ssh.Host{
-			Hostname:    terraform.Output(t, terraformOptions, "chef_workstation_private_ip"),
-			SshKeyPair:  serverKeyPair,
-			SshUserName: sshUserName,
-		}
-		cmdReturn := ssh.CheckPrivateSshConnection(t, bastion, workstation, "knife node list -F json")
-		var nodes []string
-		err = json.NewDecoder(strings.NewReader(cmdReturn)).Decode(&nodes)
-		if err != nil {
-			t.Error("Error while remote exec output")
-		}
-		log.Println(nodes)
-		assert.Equal(t, terraformOptions.Vars["chef_node_count"], len(nodes), strings.Join(nodes, ","))
-	})
 }
 func TestQuickStartWithShapeBM(t *testing.T) {
 	terraformOptions := GetTerraformOptions("../examples/quick_start", map[string]interface{}{"shape": *helpers.BareMetalShape()})
