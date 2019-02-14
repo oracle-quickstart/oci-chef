@@ -48,13 +48,8 @@ resource "null_resource" "chef_server_create_user_and_org" {
 
   provisioner "remote-exec" {
     inline = [
-      "if [ ! -d \".chef\" ]; then",
-      "mkdir .chef",
-      "fi",
-      "sudo chef-server-ctl user-create ${var.chef_user_name} ${var.chef_user_fist_name} ${var.chef_user_last_name} ${var.chef_user_email} '${var.chef_user_password}' --filename .chef/${var.chef_user_name}.pem",
-      "sudo chef-server-ctl org-create ${var.chef_org_short_name} '${var.chef_org_full_name}' --association_user ${var.chef_user_name} --filename .chef/${var.chef_org_short_name}-validator.pem",
-      "curl -X PUT --data-binary @.chef/${var.chef_user_name}.pem   ${local.defaultScheme}://objectstorage.${var.region}.${local.DefaultHostURLTemplate}${oci_objectstorage_preauthrequest.upload.access_uri}${var.chef_user_name}.pem",
-      "curl -X PUT --data-binary @.chef/${var.chef_org_short_name}-validator.pem    ${local.defaultScheme}://objectstorage.${var.region}.${local.DefaultHostURLTemplate}${oci_objectstorage_preauthrequest.upload.access_uri}${var.chef_org_short_name}-validator.pem",
+      "sudo chef-server-ctl user-create ${var.chef_user_name} ${var.chef_user_fist_name} ${var.chef_user_last_name} ${var.chef_user_email} '${var.chef_user_password}' | curl -X PUT --data-binary @-   ${local.defaultScheme}://objectstorage.${var.region}.${local.DefaultHostURLTemplate}${oci_objectstorage_preauthrequest.upload.access_uri}${var.chef_user_name}.pem",
+      "sudo chef-server-ctl org-create ${var.chef_org_short_name} '${var.chef_org_full_name}' --association_user ${var.chef_user_name} | curl -X PUT --data-binary @-    ${local.defaultScheme}://objectstorage.${var.region}.${local.DefaultHostURLTemplate}${oci_objectstorage_preauthrequest.upload.access_uri}${var.chef_org_short_name}-validator.pem",
     ]
 
     connection {
@@ -115,6 +110,7 @@ resource "null_resource" "chef_workstation_config" {
       "knife[:editor] = \"/usr/bin/vim\"",
       "EOF",
       "knife ssl fetch",
+      "knife ssl check",
     ]
   }
 }
