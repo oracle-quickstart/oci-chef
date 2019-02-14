@@ -151,7 +151,7 @@ func TestQuickStartChefWorkstation(t *testing.T) {
 			t.Error("Error while remote exec output")
 		}
 		log.Println(client)
-		//assert.Equal(t, 1, len(client))
+		assert.Equal(t, 1, len(client))
 	})
 
 }
