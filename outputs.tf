@@ -35,10 +35,10 @@ output "chef_workstation_private_ip" {
   ]
 }
 
-output "chef_client_key" {
-  value = "${local_file.chef_user_private_key_pem.filename}"
-}
-
-output "chef_validation_key" {
-  value = "${local_file.chef_org_private_key_pem.filename}"
+output "os_chef" {
+  value = {
+    bucket         = "${oci_objectstorage_bucket.chef.name}"
+    validation_key = "${oci_objectstorage_object.chef_validation_key.object}"
+    client_key     = "${oci_objectstorage_object.chef_client_key.object}"
+  }
 }

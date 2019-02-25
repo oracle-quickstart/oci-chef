@@ -1,5 +1,6 @@
 *.tfstate
 *.tfstate.backup
-.terraform
+**/.terraform/
 *.terraform
-*.terraform.tfvars
+**/terraform.tfvars
+**/inputs_config.json

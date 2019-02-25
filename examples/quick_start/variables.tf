@@ -20,8 +20,12 @@ variable "source_ocid" {
   }
 }
 
-variable "vcn_display_name" {
+variable "chef_vcn_display_name" {
   default = "chef"
+}
+
+variable "bastion_vcn_display_name" {
+  default = "bastion"
 }
 
 #Chef server configuration
@@ -37,9 +41,7 @@ variable "chef_user_last_name" {
   default = "admin"
 }
 
-variable "chef_user_password" {
-  default = "Welcome1#"
-}
+variable "chef_user_password" {}
 
 variable "chef_user_email" {
   default = "nobody@noreply.com"
@@ -53,24 +55,12 @@ variable "chef_org_full_name" {
   default = "Demo Inc."
 }
 
-#Chef node configation
-variable "chef_node_count" {
-  default = 3
-}
-
-variable "chef_recipes" {
-  description = "List of recipes for Chef to run"
-  type        = "list"
-  default     = ["recipe[example_webserver::default]"]
-}
-
-variable "chef_node_name" {
-  description = "Chef Server Node Name, must be unique"
-  default     = "httpd_server"
-}
-
 variable "shape" {
   default = "VM.Standard2.1"
+}
+
+variable "ssh_user" {
+  default = "opc"
 }
 
 # Bastion
@@ -81,4 +71,20 @@ variable "bastion_user" {
 
 variable "bastion_shape" {
   default = "VM.Standard2.1"
+}
+
+variable "os_chef_bucket_name" {
+  default = ""
+}
+
+variable "os_ssk_key_bucket_name" {
+  default = ""
+}
+
+variable "bastion_ad" {
+  default = 0
+}
+
+variable "chef_ad" {
+  default = 0
 }

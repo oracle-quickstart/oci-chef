@@ -1,37 +1,65 @@
 package helpers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gruntwork-io/terratest/modules/ssh"
+	"github.com/oracle/oci-go-sdk/common"
+	"github.com/oracle/oci-go-sdk/example/helpers"
+	"github.com/oracle/oci-go-sdk/objectstorage"
 	"io/ioutil"
+	"log"
 )
 
 type TFVarsProperties map[string]string
 
-func GetKeyPairFromFiles(ssh_public_key_path string, ssh_private_key_path string) (*ssh.KeyPair, error) {
-	var err error
-	ssh_public_key, e := ioutil.ReadFile(ssh_public_key_path)
-	if e != nil {
-		err = fmt.Errorf("Error reading ssh public key file \"%s\": %s", ssh_public_key_path, e.Error())
-	} else {
-		ssh_private_key, e := ioutil.ReadFile(ssh_private_key_path)
-		if e != nil {
-			err = fmt.Errorf("Error reading ssh private key file \"%s\": %s", ssh_private_key_path, e.Error())
-		} else {
-			return &ssh.KeyPair{PublicKey: string(ssh_public_key), PrivateKey: string(ssh_private_key)}, nil
-		}
+func FatalIfError(err error) {
+	if err != nil {
+		log.Fatalln(err.Error())
 	}
-	return nil, err
 }
+func getNamespace(ctx context.Context, c objectstorage.ObjectStorageClient) string {
+	request := objectstorage.GetNamespaceRequest{}
+	r, err := c.GetNamespace(ctx, request)
+	helpers.FatalIfError(err)
+	fmt.Println("get namespace")
+	return *r.Value
+}
+
+func GetKeyPairFromObjectStorage(bucketName string, sshPublicKeyObject string, sshPrivateKeyObject string) (*ssh.KeyPair, error) {
+	c, e := objectstorage.NewObjectStorageClientWithConfigurationProvider(common.DefaultConfigProvider())
+	FatalIfError(e)
+	ctx := context.Background()
+	namespace := getNamespace(ctx, c)
+	sshPublicKey, e := getObject(ctx, c, namespace, bucketName, sshPublicKeyObject)
+	FatalIfError(e)
+	sshPrivateKey, e := getObject(ctx, c, namespace, bucketName, sshPrivateKeyObject)
+	FatalIfError(e)
+	return &ssh.KeyPair{PublicKey: string(sshPublicKey), PrivateKey: string(sshPrivateKey)}, e
+}
+func getObject(ctx context.Context, c objectstorage.ObjectStorageClient, namespace, bucketname, objectname string) ([]byte, error) {
+	request := objectstorage.GetObjectRequest{
+		NamespaceName: &namespace,
+		BucketName:    &bucketname,
+		ObjectName:    &objectname,
+	}
+	var response objectstorage.GetObjectResponse
+	response, err := c.GetObject(ctx, request)
+	helpers.FatalIfError(err)
+	key, err := ioutil.ReadAll(response.Content)
+	helpers.FatalIfError(err)
+	return key, err
+}
+
 func GetJsonConfig(configPath string, configuration interface{}) error {
 	raw, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		return fmt.Errorf("Unable to read from configuration file: %s", err.Error())
+		return fmt.Errorf("Unable to read from configuration file: %s ", err.Error())
 	}
 	err = json.Unmarshal(raw, &configuration)
 	if err != nil {
-		return fmt.Errorf("Failed to parse configurations: %s", err.Error())
+		return fmt.Errorf("Failed to parse configurations: %s ", err.Error())
 	}
 	return nil
 }
