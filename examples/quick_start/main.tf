@@ -2,24 +2,14 @@ resource "tls_private_key" "ssh_key" {
   algorithm = "RSA"
 }
 
-resource "local_file" "ssh_public_key" {
-  content    = "${tls_private_key.ssh_key.public_key_openssh}"
-  filename   = "id_rsa.pub"
-  depends_on = ["tls_private_key.ssh_key"]
-}
-
-resource "local_file" "ssh_private_key" {
-  content    = "${tls_private_key.ssh_key.private_key_pem}"
-  filename   = "id_rsa"
-  depends_on = ["tls_private_key.ssh_key"]
-}
-
 module "chef" {
   source              = "../../"
+  region              = "${var.region}"
   compartment_ocid    = "${var.compartment_ocid}"
   source_ocid         = "${var.source_ocid[var.region]}"
   vcn_ocid            = "${oci_core_virtual_network.chef.id}"
   subnet_ocid         = "${oci_core_subnet.chef.0.id}"
+  ssh_user            = "${var.ssh_user}"
   ssh_authorized_keys = "${tls_private_key.ssh_key.public_key_openssh}"
   ssh_private_key     = "${tls_private_key.ssh_key.private_key_pem}"
   shape               = "${var.shape}"
@@ -46,16 +36,16 @@ module "chef_node" {
   subnet_ocid           = "${oci_core_subnet.chef.*.id}"
   ssh_authorized_keys   = "${tls_private_key.ssh_key.public_key_openssh}"
   shape                 = "${var.shape}"
+  os_chef_bucket_name = "${coalesce(var.os_chef_bucket_name,random_id.chef_bucket_name.hex)}"
 }
 
 module "bastion_host" {
-  source = "../../modules/nodes"
-
+  source                = "../../modules/nodes"
   compartment_ocid      = "${var.compartment_ocid}"
   instance_display_name = "bastion"
   hostname_label        = "bastion"
   source_ocid           = "${var.source_ocid[var.region]}"
-  vcn_ocid              = "${oci_core_virtual_network.chef.id}"
+  vcn_ocid              = "${oci_core_virtual_network.bastion.id}"
   subnet_ocid           = ["${oci_core_subnet.bastion.id}"]
   ssh_authorized_keys   = "${tls_private_key.ssh_key.public_key_openssh}"
   shape                 = "${var.bastion_shape}"

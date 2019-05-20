@@ -53,9 +53,7 @@ variable "chef_user_last_name" {
   default = "admin"
 }
 
-variable "chef_user_password" {
-  default = "Welcome1#"
-}
+variable "chef_user_password" {}
 
 variable "chef_user_email" {
   default = "nobody@noreply.com"
@@ -67,22 +65,6 @@ variable "chef_org_short_name" {
 
 variable "chef_org_full_name" {
   default = "Demo Inc."
-}
-
-#Chef node configation
-variable "chef_node_count" {
-  default = 3
-}
-
-variable "chef_recipes" {
-  description = "List of recipes for Chef to run"
-  type        = "list"
-  default     = ["recipe[example_webserver::default]"]
-}
-
-variable "chef_node_name" {
-  description = "Chef Server Node Name, must be unique"
-  default     = "httpd_server"
 }
 
 variable "shape" {
@@ -100,3 +82,11 @@ variable "bastion_private_key" {
 }
 
 variable "bastion_public_ip" {}
+
+variable "os_chef_bucket_name" {
+  default = ""
+}
+
+variable "ssh_user" {
+  default = "opc"
+}

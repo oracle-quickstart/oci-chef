@@ -1,18 +1,24 @@
 # Oracle Cloud Infrastructure Chef Terraform Module
+
 ## About
-terraform-oci-chef module is to deploy Chef Server, Workstation on OCI by using terraform
+The terraform-oci-chef module allows you to deploy a Chef Server or Chef Workstation on Oracle Cloud Infrastructure using Terraform.
 
 ## Prerequisites
-See the [Oracle Cloud Infrastructure Terraform Provider docs](https://www.terraform.io/docs/providers/oci/index.html) for information about setting up and using the Oracle Cloud Infrastructure Terraform Provider.
-## How to use this module
 
-The [examples](./examples) folder contains a detailed example that shows how to use this module.
+To use the terraform-oci-chef module, you must have the following:
+- An Oracle Cloud Infrastructure account.
+- A user created in that account, in a group with a policy that grants the desired permissions. This can be a user for yourself, or another person/system that needs to call the API. For an example of how to set up a new user, group, compartment, and policy, see [Adding Users](https://docs.cloud.oracle.com/iaas/Content/GSG/Tasks/addingusers.htm). For a list of typical policies you may want to use, see [Common Policies](https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/commonpolicies.htm).
+- A key pair used for signing API requests, with the public key uploaded to Oracle. For more information on generating and uploading keys, see [Required Keys and OCIDs](https://docs.cloud.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm).
+- Oracle Cloud Infrastructure Terraform Provider. For more information, see [Oracle Cloud Infrastructure Terraform Provider](https://www.terraform.io/docs/providers/oci/index.html). 
 
-The following code shows how to deploy Chef Server & Workstation using this module:
+## Example: Deploy a Chef Server and Workstation
+
+The following code shows how to deploy a Chef Server and Workstation using this module:
 
 ```txt
 module "chef" {
-  source              = "git::ssh://git@bitbucket.oci.oraclecorp.com:7999/tfs/terraform-oci-chef.git"
+  source              = "github.com/oci-quickstart/oci-quickstart-chef"
+  region              = "${var.region}"
   compartment_ocid    = "${var.compartment_ocid}"
   source_ocid         = "${var.source_ocid}"
   vcn_ocid            = "${var.vcn_ocid}"
@@ -29,11 +35,17 @@ module "chef" {
   chef_user_email     = "${var.chef_user_email}"
   chef_org_short_name = "${var.chef_org_short_name}"
   chef_org_full_name  = "${var.chef_org_full_name}"
+  os_chef_bucket_name = "${var.os_chef_bucket_name}"
 }
-
 ```
+
+For more examples that demonstrate how to use this module, explore the [examples](./examples) folder. 
+
+## Arguments
+
 Argument | Description | Type | Default | Required
 --- | --- | --- | --- | ---
+region | region in which to operate, example: us-ashburn-1, us-phoenix-1. | string | n/a | yes
 compartment_ocid | OCID of the compartment. | string | n/a | yes
 source_ocid | OCID of an image of Oracle Enterprise Linux 7. For more information, see [Oracle Cloud Infrastructure: Images](https://docs.cloud.oracle.com/iaas/images/). | string | n/a | yes
 vcn_ocid | Unique identifier (OCID) of the VCN. | string | n/a | yes
@@ -50,16 +62,18 @@ chef_user_password | Chef administrator password. | string | n/a | yes
 chef_user_email | Chef administrator E-mail address. | string | n/a | yes
 chef_org_short_name | Chef organization short name. | string | n/a | yes
 chef_org_full_name | Chef organization full name. | string | n/a | yes
+os_chef_bucket_name | OCI Object Storage Bucket name, use it to create a new Bucket | string | n/a | yes
 chef_server_name | Chef Server host name | string | "chefserver" | no
 chef_workstation_name | Chef Workstation host name | string | "chefworkstation" |no
-ssh_user | Chef Server & Workstation SSH login user name | string | "opc" | no
-shape | Chef Server & Workstation shape | string | "VM.Standard2.1" | no
+ssh_user | Chef Server and Workstation SSH login user name | string | "opc" | no
+shape | Chef Server and Workstation shape | string | "VM.Standard2.1" | no
 chef-server-core_rpm_url | Chef Server RPM for Enterprise Linux 7 download URL | string | "https://packages.chef.io/files/stable/chef-server/12.18.14/el/7/chef-server-core-12.18.14-1.el7.x86_64.rpm" | no
 chefdk_rpm_url | Chef Workstation RPM for Enterprise Linux 7 download URL | string | "https://packages.chef.io/files/stable/chefdk/3.3.23/el/7/chefdk-3.3.23-1.el7.x86_64.rpm" | no
 
 ## Contributing
 
 This project is open source. Oracle appreciates any contributions that are made by the open source community.
+
 ## License
 Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
 

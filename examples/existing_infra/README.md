@@ -1,12 +1,13 @@
-# Existing Infra
+# Existing Infrastructure
+
 ## About
-- Use terraform-oci-chef module to deploy Chef Sever & Workstation
-- Create three Chef Nodes by default
-- Upload example_webserver cookbook from Chef Workstation
-- Run recipes [example_webserver::default] on Chef Nodes
+This example demonstrates the following tasks:
+
+- Use terraform-oci-chef module to deploy Chef Sever and Workstation
  
-This configuration generally implements this:
-![Chef architecture](https://objectstorage.us-phoenix-1.oraclecloud.com/n/dxterraformdev/b/doc_image/o/b0008630-895b-4a70-99ba-7d8c14e12eb1.png)
+This example implements the following architecture:
+
+![Chef architecture](images/example.png)
 
 ### Using this example
 Copy terraform.tfvars.template to terraform.tfvars and update required information.
@@ -16,11 +17,11 @@ Initialize Terraform:
 ```bash
 terraform init
 ```
-View what Terraform plans do before actually doing it:
+View Terraform plans (without executing):
 ```bash
 terraform plan
 ```
-Use Terraform to Provision resources and Jenkins cluster on OCI:
+Use Terraform to provision resources and Jenkins cluster:
 ```bash
 terraform apply
 ```

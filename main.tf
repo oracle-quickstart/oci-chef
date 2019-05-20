@@ -32,6 +32,11 @@ module "chef_workstation" {
   chefdk_rpm_url        = "${var.chefdk_rpm_url}"
 }
 
+locals {
+  defaultScheme          = "https"
+  DefaultHostURLTemplate = "oraclecloud.com"
+}
+
 resource "null_resource" "chef_server_create_user_and_org" {
   triggers {
     instance_ip = "${element(module.chef_server.private_ip,0 )}"
@@ -43,8 +48,8 @@ resource "null_resource" "chef_server_create_user_and_org" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo chef-server-ctl user-create ${var.chef_user_name} ${var.chef_user_fist_name} ${var.chef_user_last_name} ${var.chef_user_email} '${var.chef_user_password}' --filename /home/opc/${var.chef_user_name}.pem",
-      "sudo chef-server-ctl org-create ${var.chef_org_short_name} '${var.chef_org_full_name}' --association_user ${var.chef_user_name} --filename /home/opc/${var.chef_org_short_name}-validator.pem",
+      "sudo chef-server-ctl user-create ${var.chef_user_name} ${var.chef_user_fist_name} ${var.chef_user_last_name} ${var.chef_user_email} '${var.chef_user_password}' | curl -X PUT --data-binary @-   ${local.defaultScheme}://objectstorage.${var.region}.${local.DefaultHostURLTemplate}${oci_objectstorage_preauthrequest.upload.access_uri}${var.chef_user_name}.pem",
+      "sudo chef-server-ctl org-create ${var.chef_org_short_name} '${var.chef_org_full_name}' --association_user ${var.chef_user_name} | curl -X PUT --data-binary @-    ${local.defaultScheme}://objectstorage.${var.region}.${local.DefaultHostURLTemplate}${oci_objectstorage_preauthrequest.upload.access_uri}${var.chef_org_short_name}-validator.pem",
     ]
 
     connection {
@@ -133,6 +138,13 @@ resource "null_resource" "chef_workstation_config" {
       "${lookup(data.external.chef_keys.result ,"validation_key")}",
       "EOF",
       "cat <<'EOF' > config.rb",
+      "cat <<'EOF' > .chef/${var.chef_user_name}.pem",
+      "${data.oci_objectstorage_object.chef_user_name_pem.content}",
+      "EOF",
+      "cat <<'EOF' > .chef/${var.chef_org_short_name}-validator.pem",
+      "${data.oci_objectstorage_object.chef_org_short_name_pem.content}",
+      "EOF",
+      "cat <<'EOF' > .chef/config.rb",
       "current_dir = File.dirname(__FILE__)",
       "log_level                :info",
       "log_location             STDOUT",
@@ -141,7 +153,10 @@ resource "null_resource" "chef_workstation_config" {
       "validation_client_name   \"${var.chef_org_short_name}-validator\"",
       "validation_key           \"#{current_dir}/${var.chef_org_short_name}-validator.pem\"",
       "chef_server_url          \"https://${module.chef_server.fqdn}/organizations/${var.chef_org_short_name}\"",
+      "knife[:editor] = \"/usr/bin/vim\"",
       "EOF",
+      "knife ssl fetch",
+      "knife ssl check",
     ]
   }
 }

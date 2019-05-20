@@ -42,3 +42,11 @@ output "client_key" {
 output "validation_key" {
   value = "${local_file.validation_key.filename}"
 }
+
+output "os_chef" {
+  value = {
+    bucket         = "${oci_objectstorage_bucket.chef.name}"
+    validation_key = "${oci_objectstorage_object.chef_validation_key.object}"
+    client_key     = "${oci_objectstorage_object.chef_client_key.object}"
+  }
+}

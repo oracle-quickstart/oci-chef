@@ -1,5 +1,6 @@
 module "chef" {
   source              = "../../"
+  region              = "${var.region}"
   compartment_ocid    = "${var.compartment_ocid}"
   source_ocid         = "${var.source_ocid[var.region]}"
   vcn_ocid            = "${var.vcn_ocid}"
@@ -117,4 +118,5 @@ resource "null_resource" "chef_node_run_recipes" {
       bastion_private_key = "${file(var.bastion_private_key)}"
     }
   }
+  os_chef_bucket_name = "${coalesce(var.os_chef_bucket_name,random_id.chef_bucket_name.hex)}"
 }

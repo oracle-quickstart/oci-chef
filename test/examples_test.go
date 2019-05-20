@@ -1,8 +1,8 @@
 package test
 
 import (
-	"./helpers"
 	"os"
+	"terraform-oci-chef/test/helpers"
 	"testing"
 )
 
