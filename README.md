@@ -17,7 +17,7 @@ The following code shows how to deploy a Chef Server and Workstation using this 
 
 ```txt
 module "chef" {
-  source              = "git::ssh://git@bitbucket.oci.oraclecorp.com:7999/tfs/terraform-oci-chef.git"
+  source              = "github.com/oci-quickstart/oci-quickstart-chef"
   region              = "${var.region}"
   compartment_ocid    = "${var.compartment_ocid}"
   source_ocid         = "${var.source_ocid}"
