@@ -76,3 +76,11 @@ output "object_storage_ssh_keys" {
     ssh_authorized_keys     = "${oci_objectstorage_object.ssh_authorized_keys.object}"
   }
 }
+
+output "client_key" {
+  value = "${path.module}/${module.chef.client_key}"
+}
+
+output "validation_key" {
+  value = "${path.module}/${module.chef.validation_key}"
+}

@@ -23,6 +23,19 @@ module "chef" {
   chef_user_email     = "${var.chef_user_email}"
   chef_org_short_name = "${var.chef_org_short_name}"
   chef_org_full_name  = "${var.chef_org_full_name}"
+}
+
+module "chef_node" {
+  source = "../../modules/nodes"
+
+  instance_display_name = "chefnode"
+  instance_count        = "${var.chef_node_count}"
+  compartment_ocid      = "${var.compartment_ocid}"
+  source_ocid           = "${var.source_ocid[var.region]}"
+  vcn_ocid              = "${oci_core_virtual_network.chef.id}"
+  subnet_ocid           = "${oci_core_subnet.chef.*.id}"
+  ssh_authorized_keys   = "${tls_private_key.ssh_key.public_key_openssh}"
+  shape                 = "${var.shape}"
   os_chef_bucket_name = "${coalesce(var.os_chef_bucket_name,random_id.chef_bucket_name.hex)}"
 }
 
@@ -36,4 +49,92 @@ module "bastion_host" {
   subnet_ocid           = ["${oci_core_subnet.bastion.id}"]
   ssh_authorized_keys   = "${tls_private_key.ssh_key.public_key_openssh}"
   shape                 = "${var.bastion_shape}"
+}
+
+resource "null_resource" "upload_cookbooks" {
+  depends_on = [
+    "module.chef",
+  ]
+
+  connection {
+    host        = "${element(module.chef.chef_workstation_private_ip, 0)}"
+    type        = "ssh"
+    user        = "opc"
+    private_key = "${tls_private_key.ssh_key.private_key_pem}"
+    timeout     = "5m"
+
+    bastion_host        = "${element(module.bastion_host.public_ip, 0)}"
+    bastion_user        = "${var.bastion_user}"
+    bastion_private_key = "${tls_private_key.ssh_key.private_key_pem}"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum install git -y",
+      "if [  -d \"terraform-examples\" ]; then",
+      "rm -rf terraform-examples",
+      "fi",
+      "git clone https://github.com/oracle/terraform-examples",
+      "cd /home/opc/terraform-examples/examples/oci/chef/cookbooks/example_webserver",
+      "knife ssl fetch",
+      "berks install",
+      "berks upload",
+    ]
+  }
+}
+
+resource "null_resource" "chef_node_run_recipes" {
+  triggers {
+    instance_ip = "${element(module.chef_node.private_ip, count.index)}"
+  }
+
+  depends_on = [
+    "null_resource.upload_cookbooks",
+  ]
+
+  count = "${var.chef_node_count}"
+
+  provisioner "chef" {
+    server_url              = "https://${module.chef.chef_server_fqdn}/organizations/${var.chef_org_short_name}"
+    node_name               = "${var.chef_node_name}_${count.index}"
+    run_list                = "${var.chef_recipes}"
+    user_name               = "${var.chef_user_name}"
+    user_key                = "${file(module.chef.client_key)}"
+    recreate_client         = true
+    fetch_chef_certificates = true
+
+    connection {
+      host        = "${element(module.chef_node.private_ip, count.index)}"
+      type        = "ssh"
+      user        = "opc"
+      private_key = "${tls_private_key.ssh_key.private_key_pem}"
+      timeout     = "5m"
+
+      bastion_host        = "${element(module.bastion_host.public_ip, 0)}"
+      bastion_user        = "${var.bastion_user}"
+      bastion_private_key = "${tls_private_key.ssh_key.private_key_pem}"
+    }
+  }
+
+  provisioner "remote-exec" {
+    when       = "destroy"
+    on_failure = "continue"
+
+    inline = [
+      "knife node delete ${var.chef_node_name}_${count.index} -y",
+      "knife client delete ${var.chef_node_name}_${count.index} -y",
+    ]
+
+    connection {
+      host        = "${element(module.chef.chef_workstation_private_ip, 0)}"
+      type        = "ssh"
+      user        = "opc"
+      private_key = "${tls_private_key.ssh_key.private_key_pem}"
+      timeout     = "5m"
+
+      bastion_host        = "${element(module.bastion_host.public_ip, 0)}"
+      bastion_user        = "${var.bastion_user}"
+      bastion_private_key = "${tls_private_key.ssh_key.private_key_pem}"
+    }
+  }
 }

@@ -35,6 +35,14 @@ output "chef_workstation_private_ip" {
   ]
 }
 
+output "client_key" {
+  value = "${local_file.client_key.filename}"
+}
+
+output "validation_key" {
+  value = "${local_file.validation_key.filename}"
+}
+
 output "os_chef" {
   value = {
     bucket         = "${oci_objectstorage_bucket.chef.name}"

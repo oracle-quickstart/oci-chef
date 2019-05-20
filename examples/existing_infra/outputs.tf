@@ -45,3 +45,11 @@ output "object_storage_chef" {
     validation_key = "${lookup(module.chef.os_chef, "validation_key")}"
   }
 }
+
+output "client_key" {
+  value = "${module.chef.client_key}"
+}
+
+output "validation_key" {
+  value = "${module.chef.validation_key}"
+}
