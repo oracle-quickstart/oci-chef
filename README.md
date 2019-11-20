@@ -1,5 +1,4 @@
-# Oracle Cloud Infrastructure Chef Terraform Module
-
+# oci-chef
 These are Terraform modules that deploy [Chef](https://www.chef.io/) on [Oracle Cloud Infrastructure (OCI)](https://cloud.oracle.com/en_US/cloud-infrastructure).
 
 ## Prerequisites
